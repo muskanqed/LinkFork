@@ -1,6 +1,6 @@
-const express = require("require");
+const express = require("express");
 const cors = require("cors");
-const authRoutes = require("./modules/auth/auth.routes")
+const authRoutes = require("./modules/auth/auth.routes");
 
 const app = express();
 

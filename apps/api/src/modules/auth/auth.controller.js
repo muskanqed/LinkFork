@@ -1,18 +1,21 @@
 const { signUpSchema, loginSchema } = require("./auth.validation");
+const authService = require("./auth.service");
 
 const signup = async (req, res) => {
   try {
-    const vaildationData = signUpSchema.parse(req.body);
+    const result = await authService.signup(req.body);
 
     return res.status(201).json({
       success: true,
-      message: "Signup successful"
+      message: "Signup successful",
+      data: result
     });
   }
   catch (error) {
+    console.error(error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: error.message,
     });
   }
 
