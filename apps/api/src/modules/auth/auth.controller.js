@@ -1,14 +1,22 @@
-const { signUpSchema, loginSchema } = require("./auth.validation");
 const authService = require("./auth.service");
 
 const signup = async (req, res) => {
   try {
     const result = await authService.signup(req.body);
 
+    res.cookie("token", result.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     return res.status(201).json({
       success: true,
       message: "Signup successful",
-      data: result
+      data: {
+        user: result.user
+      }
     });
   }
   catch (error) {
@@ -23,39 +31,63 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const vaildationData = loginSchema.parse(req.body);
+    const result = await authService.login(req.body);
 
-    return res.status(201).json({
+    res.cookie("token", result.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
       success: true,
-      message: "Signin successful"
+      message: "Login successful",
+      data: {
+        user: result.user,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(401).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const getMe = async (req, res) => {
+  try {
+    const user = await authService.getMe(req.userId);
+
+    res.status(200).send({
+      success: true,
+      data: user,
     })
   }
   catch (error) {
-    return res.status(500).json({
+    console.log(error);
+
+    res.status(400).send({
       success: false,
-      message: "Internal server error"
+      message: error.message
     })
   }
 }
 
 const logout = async (req, res) => {
-  try {
-    // Logout logic will be added later
+  res.clearCookie("token");
 
-    return res.status(200).json({
-      success: true,
-      message: "Logout successful"
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error"
-    });
-  }
+  return res.status(200).json({
+    success: true,
+    message: "Logout successful",
+  });
 };
 
 module.exports = {
   signup,
   login,
-  logout
+  logout,
+  getMe
 }
