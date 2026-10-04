@@ -1,0 +1,255 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  font-family: var(--font-geist-sans), sans-serif;
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(#f1f5f9 1px, transparent 1px),
+    linear-gradient(90deg, #f1f5f9 1px, transparent 1px);
+  background-size: 40px 40px;
+  box-sizing: border-box;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.logoIcon {
+  width: 32px;
+  height: 32px;
+  background-color: #2563eb;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.brandText {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.025em;
+}
+
+.card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 440px;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-sizing: border-box;
+}
+
+.header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.forgotPassword {
+  font-size: 0.875rem;
+  color: #2563eb;
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.input::placeholder {
+  color: #9ca3af;
+}
+
+.input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 0.75rem;
+  cursor: pointer;
+  color: #64748b;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 0.5rem;
+}
+
+.submitButton:hover {
+  background-color: #1d4ed8;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.divider:not(:empty)::before {
+  margin-right: 1rem;
+}
+
+.divider:not(:empty)::after {
+  margin-left: 1rem;
+}
+
+.googleButton {
+  width: 100%;
+  padding: 0.625rem;
+  background-color: white;
+  color: #0f172a;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  transition: background-color 0.2s;
+  box-sizing: border-box;
+}
+
+.googleButton:hover {
+  background-color: #f8fafc;
+}
+
+.signupNav {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.signupNav a {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 0.25rem;
+}
+
+.signupNav a:hover {
+  text-decoration: underline;
+}
+
+.footer {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #64748b;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+.footer a {
+  color: #0f172a;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 1rem;
+  }
+  .card {
+    padding: 1.5rem;
+  }
+}

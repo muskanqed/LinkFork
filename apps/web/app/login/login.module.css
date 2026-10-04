@@ -1,0 +1,217 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  font-family: var(--font-geist-sans), sans-serif;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.logoIcon {
+  width: 40px;
+  height: 40px;
+  background-color: var(--primary);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.brandText {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--foreground);
+  letter-spacing: -0.025em;
+}
+
+.card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.forgotPassword {
+  font-size: 0.875rem;
+  color: var(--primary);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 0.75rem;
+  cursor: pointer;
+  color: var(--muted);
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 0.625rem;
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submitButton:hover {
+  background-color: var(--primary-hover);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid var(--border);
+}
+
+.divider:not(:empty)::before {
+  margin-right: 1rem;
+}
+
+.divider:not(:empty)::after {
+  margin-left: 1rem;
+}
+
+.googleButton {
+  width: 100%;
+  padding: 0.625rem;
+  background-color: white;
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  transition: background-color 0.2s;
+}
+
+.googleButton:hover {
+  background-color: var(--secondary);
+}
+
+.signupNav {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.signupNav a {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 0.25rem;
+}
+
+.footer {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+.footer a {
+  color: var(--foreground);
+  text-decoration: underline;
+  font-weight: 500;
+}
