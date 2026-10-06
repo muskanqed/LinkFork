@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import styles from "../../../app/analytics/analytics.module.css";
+import styles from "../../../app/(dashboard)/analytics/analytics.module.css";
 
 interface KpiCardProps {
   label: string;
@@ -13,7 +13,7 @@ interface KpiCardProps {
 
 export const KpiCard = ({ label, value, trend, trendUp, icon }: KpiCardProps) => {
   return (
-    <div className={styles.card}>
+    <div className={styles.kpiCard}>
       <div className={styles.cardHeader}>
         <span className={styles.label}>{label}</span>
         <div className={styles.icon}>

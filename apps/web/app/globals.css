@@ -1,16 +1,55 @@
 :root {
   --background: #ffffff;
   --foreground: #0f172a;
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --secondary: #f8fafc;
-  --secondary-hover: #f1f5f9;
   --muted: #64748b;
+  --muted-foreground: #64748b;
   --border: #e2e8f0;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+
+  --sidebar-background: #ffffff;
+  --sidebar-foreground: #475569;
+  --sidebar-border: #e2e8f0;
+  --sidebar-active-bg: #eff6ff;
+  --sidebar-active-text: #2563eb;
+  --header-background: #ffffff;
+
+  --primary-hover: #1d4ed8;
+  --secondary-hover: #f1f5f9;
   --input: #ffffff;
   --ring: #3b82f6;
   --radius: 0.5rem;
 }
+
+[data-theme='dark'] {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --muted: #94a3b8;
+  --muted-foreground: #94a3b8;
+  --border: #1e293b;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --card: #1e293b;
+  --card-foreground: #f8fafc;
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+
+  --sidebar-background: #0f172a;
+  --sidebar-foreground: #94a3b8;
+  --sidebar-border: #1e293b;
+  --sidebar-active-bg: #1e293b;
+  --sidebar-active-text: #3b82f6;
+  --header-background: #0f172a;
+
+  --primary-hover: #60a5fa;
+  --secondary-hover: #334155;
+  --input: #0f172a;
+}
+
 
 .grid-bg {
   background-color: var(--background);

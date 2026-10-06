@@ -1,10 +1,9 @@
 .container {
-  padding: 2rem 0;
-  max-width: 1200px;
-  margin: 0 auto;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  width: 100%;
 }
 
 .header {
@@ -35,7 +34,7 @@
 
 .filter {
   appearance: none;
-  background-color: white;
+  background-color: var(--card);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0.625rem 1rem;
@@ -68,7 +67,7 @@
 }
 
 .card {
-  background: white;
+  background: var(--card);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1.5rem;
@@ -76,6 +75,23 @@
   flex-direction: column;
   gap: 0.5rem;
   box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+.kpiCard {
+  height: 145px;
+}
+
+.clicksChartCard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  min-height: 400px;
+  overflow: hidden;
 }
 
 .cardHeader {
@@ -249,7 +265,7 @@
 }
 
 .mapPlaceholder {
-  background-color: #f8fafc;
+  background-color: var(--secondary);
   border: 1px solid var(--border);
   border-radius: 8px;
   margin-bottom: 1.5rem;

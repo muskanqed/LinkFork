@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import styles from "../../../app/analytics/analytics.module.css";
+import styles from "../../../app/(dashboard)/analytics/analytics.module.css";
 
 interface GeoData {
   country: string;

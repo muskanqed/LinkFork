@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import styles from "../../../app/analytics/analytics.module.css";
+import styles from "../../../app/(dashboard)/analytics/analytics.module.css";
 
 interface TopLink {
   rank: string;
@@ -22,12 +22,10 @@ export const TopLinksTable = ({ data }: TopLinksTableProps) => {
       <div className={styles.linksTable}>
         {data.map((link, index) => (
           <div key={index} className={styles.linkRow}>
-            <div className={styles.linkLeft}>
-              <span className={styles.rank}>{link.rank}</span>
-              <div className={styles.urlGroup}>
-                <a href="#" className={styles.shortUrl}>{link.shortUrl}</a>
-                <span className={styles.destUrl}>{link.destination}</span>
-              </div>
+            <span className={styles.rank}>{link.rank}</span>
+            <div className={styles.urlGroup}>
+              <a href="#" className={styles.shortUrl}>{link.shortUrl}</a>
+              <span className={styles.destUrl}>{link.destination}</span>
             </div>
             <div className={styles.linkRight}>
               <span className={styles.clickCount}>{link.clicks}</span>

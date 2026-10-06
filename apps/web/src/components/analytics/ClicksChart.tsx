@@ -10,7 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import styles from "../../../app/analytics/analytics.module.css";
+import styles from "../../../app/(dashboard)/analytics/analytics.module.css";
 
 interface ClicksChartProps {
   data: { date: string; clicks: number }[];
@@ -20,12 +20,13 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
       <div style={{
-        backgroundColor: "white",
+        backgroundColor: "var(--card)",
         padding: "8px 12px",
         border: "1px solid var(--border)",
         borderRadius: "8px",
         fontSize: "0.875rem",
         boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+        color: "var(--foreground)"
       }}>
         <p style={{ margin: 0, fontWeight: 600, color: "var(--foreground)" }}>{label}</p>
         <p style={{ margin: 0, color: "var(--muted)" }}>{payload[0].value.toLocaleString()} clicks</p>
@@ -37,7 +38,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export const ClicksChart = ({ data }: ClicksChartProps) => {
   return (
-    <div className={styles.card}>
+    <div className={styles.clicksChartCard}>
       <div className={styles.cardHeader}>
         <div className={styles.headerText}>
           <h3 className={styles.chartTitle}>Total clicks</h3>

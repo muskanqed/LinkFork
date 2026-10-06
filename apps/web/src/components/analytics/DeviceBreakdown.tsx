@@ -2,7 +2,7 @@
 
 import React from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import styles from "../../../app/analytics/analytics.module.css";
+import styles from "../../../app/(dashboard)/analytics/analytics.module.css";
 
 interface DeviceData {
   device: string;
