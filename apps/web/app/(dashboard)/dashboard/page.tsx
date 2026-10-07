@@ -334,7 +334,7 @@ export default function DashboardPage() {
                 </td>
                 <td className={styles.td}>
                   <span className={`${styles.badge} ${link.status === "Active" ? styles.badgeActive : styles.badgePaused}`}>
-                    <span className={styles.badgeDot} />
+                    <span className={styles.badgeDot} style={{ background: link.status === "Active" ? "#16a34a" : "#d97706" }} />
                     {link.status}
                   </span>
                 </td>

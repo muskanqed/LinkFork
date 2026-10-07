@@ -93,12 +93,21 @@ body {
 body {
   color: var(--foreground);
   background: var(--background);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 * {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+}
+
+/* Form controls don't inherit font-family by default in all browsers */
+input, button, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
 }
 
 a {
