@@ -1,9 +1,29 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import styles from "../../../app/shell.module.css";
 
+const ROUTE_META: Record<string, { title: string; subtitle: string }> = {
+  "/dashboard":     { title: "Dashboard",  subtitle: "Acme workspace" },
+  "/links":         { title: "Links",       subtitle: "Acme workspace" },
+  "/links/create":  { title: "Create Link", subtitle: "Acme workspace" },
+  "/analytics":     { title: "Analytics",   subtitle: "Acme workspace" },
+  "/billing":       { title: "Billing",     subtitle: "Acme workspace" },
+  "/settings":      { title: "Settings",    subtitle: "Acme workspace" },
+};
+
+function useRouteTitle() {
+  const pathname = usePathname();
+  // dynamic segments: /links/[id]
+  if (pathname.startsWith("/links/") && pathname !== "/links/create") {
+    return { title: "Link Detail", subtitle: "Acme workspace" };
+  }
+  return ROUTE_META[pathname] ?? { title: "LinkFork", subtitle: "Acme workspace" };
+}
+
 export const Header = () => {
+  const { title, subtitle } = useRouteTitle();
   const [theme, setTheme] = useState("light");
 
   useEffect(() => {
@@ -22,8 +42,8 @@ export const Header = () => {
   return (
     <header className={styles.appHeader}>
       <div className={styles.headerLeft}>
-        <h2 className={styles.headerTitle}>Analytics</h2>
-        <span className={styles.headerSubtitle}>Acme workspace</span>
+        <h2 className={styles.headerTitle}>{title}</h2>
+        <span className={styles.headerSubtitle}>{subtitle}</span>
       </div>
       <div className={styles.headerRight}>
         <div className={styles.searchWrapper}>
