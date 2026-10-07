@@ -6,10 +6,15 @@ const createUrl = async (data) => {
   })
 }
 
-const findUrl = async(originalUrl)=>{
-  return prisma.url.findFirst
+const findByUserId = async (userId) => {
+  return prisma.url.findMany({
+    where: {
+      userId
+    }
+  })
 }
 
 module.exports = {
-  createUrl
+  createUrl,
+  findByUserId
 }
