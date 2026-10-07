@@ -26,10 +26,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         borderRadius: "8px",
         fontSize: "0.875rem",
         boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-        color: "var(--foreground)"
+        color: "var(--foreground)",
       }}>
         <p style={{ margin: 0, fontWeight: 600, color: "var(--foreground)" }}>{label}</p>
-        <p style={{ margin: 0, color: "var(--muted)" }}>{payload[0].value.toLocaleString()} clicks</p>
+        <p style={{ margin: "2px 0 0", color: "var(--muted)" }}>
+          {payload[0].value.toLocaleString()} clicks
+        </p>
       </div>
     );
   }
@@ -39,19 +41,21 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export const ClicksChart = ({ data }: ClicksChartProps) => {
   return (
     <div className={styles.clicksChartCard}>
-      <div className={styles.cardHeader}>
-        <div className={styles.headerText}>
-          <h3 className={styles.chartTitle}>Total clicks</h3>
-          <p className={styles.chartSubtitle}>Combined performance for all links</p>
-        </div>
+      <div className={styles.headerText}>
+        <h3 className={styles.chartTitle}>Total clicks</h3>
+        <p className={styles.chartSubtitle}>Combined performance for all links</p>
       </div>
+
       <div className={styles.chartContainer}>
         <ResponsiveContainer width="100%" height={300}>
-          <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <AreaChart
+            data={data}
+            margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+          >
             <defs>
               <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
+                <stop offset="5%" stopColor="#2563eb" stopOpacity={0.18} />
+                <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid
@@ -63,25 +67,29 @@ export const ClicksChart = ({ data }: ClicksChartProps) => {
               dataKey="date"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "var(--muted)", fontSize: 12 }}
-              dy={10}
+              tick={{ fill: "var(--muted)", fontSize: 11 }}
+              dy={8}
+              interval="preserveStartEnd"
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: "var(--muted)", fontSize: 12 }}
-              dx={-10}
+              tick={{ fill: "var(--muted)", fontSize: 11 }}
+              dx={-4}
+              width={36}
               ticks={[0, 2000, 4000, 6000, 8000]}
-              tickFormatter={(value) => `${value / 1000}k`}
+              tickFormatter={(v) => `${v / 1000}k`}
             />
             <Tooltip content={<CustomTooltip />} />
             <Area
               type="monotone"
               dataKey="clicks"
-              stroke="var(--primary)"
+              stroke="#2563eb"
               strokeWidth={2}
               fillOpacity={1}
               fill="url(#colorClicks)"
+              dot={false}
+              activeDot={{ r: 4, strokeWidth: 0, fill: "#2563eb" }}
             />
           </AreaChart>
         </ResponsiveContainer>

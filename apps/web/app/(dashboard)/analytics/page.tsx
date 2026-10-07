@@ -8,6 +8,21 @@ import { GeoDistribution } from "@/components/analytics/GeoDistribution";
 import { TopLinksTable } from "@/components/analytics/TopLinksTable";
 import { ANALYTICS_MOCK_DATA } from "@/data/analytics-mock";
 
+const ChevronDown = () => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="m6 9 6 6 6-6" />
+  </svg>
+);
+
 export default function AnalyticsPage() {
   return (
     <div className={styles.container}>
@@ -19,21 +34,44 @@ export default function AnalyticsPage() {
       </header>
 
       <div className={styles.filters}>
-        <select className={styles.filter}>
-          <option>Last 30 days</option>
-          <option>Last 7 days</option>
-          <option>Last 24 hours</option>
-          <option>Custom range</option>
-        </select>
-        <select className={styles.filter}>
-          <option>All links</option>
-        </select>
-        <select className={styles.filter}>
-          <option>All countries</option>
-        </select>
-        <select className={styles.filter}>
-          <option>All devices</option>
-        </select>
+        <div className={styles.filterWrapper}>
+          <select className={styles.filter}>
+            <option>Last 30 days</option>
+            <option>Last 7 days</option>
+            <option>Last 24 hours</option>
+            <option>Custom range</option>
+          </select>
+          <span className={styles.filterChevron}>
+            <ChevronDown />
+          </span>
+        </div>
+
+        <div className={styles.filterWrapper}>
+          <select className={styles.filter}>
+            <option>All links</option>
+          </select>
+          <span className={styles.filterChevron}>
+            <ChevronDown />
+          </span>
+        </div>
+
+        <div className={styles.filterWrapper}>
+          <select className={styles.filter}>
+            <option>All countries</option>
+          </select>
+          <span className={styles.filterChevron}>
+            <ChevronDown />
+          </span>
+        </div>
+
+        <div className={styles.filterWrapper}>
+          <select className={styles.filter}>
+            <option>All devices</option>
+          </select>
+          <span className={styles.filterChevron}>
+            <ChevronDown />
+          </span>
+        </div>
       </div>
 
       <div className={styles.kpiGrid}>

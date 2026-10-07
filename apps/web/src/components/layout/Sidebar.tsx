@@ -73,8 +73,7 @@ const NAV_GROUPS = [
         icon: (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="2" y="5" width="20" height="14" rx="2" />
-            <circle cx="12" cy="12" r="2" />
-            <path d="M7 12h10" />
+            <line x1="2" y1="10" x2="22" y2="10" />
           </svg>
         ),
       },
@@ -103,7 +102,7 @@ export const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
 
   return (
     <aside className={`${styles.sidebar} ${isOpen ? styles.open : ""}`}>
-        <div className="p-6">
+        <div className={styles.sidebarBrandOuter}>
           <Link href="/dashboard" className={styles.sidebarBrand}>
             <div className={styles.sidebarLogo}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

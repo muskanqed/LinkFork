@@ -1,15 +1,18 @@
+/* ─── Page Container ──────────────────────────────────────────────────── */
 .container {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
   width: 100%;
 }
 
+/* ─── Page Header ─────────────────────────────────────────────────────── */
 .header {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.375rem;
+  margin-bottom: 0.25rem;
 }
 
 .title {
@@ -18,54 +21,84 @@
   color: var(--foreground);
   margin: 0;
   letter-spacing: -0.025em;
+  line-height: 1.2;
 }
 
 .subtitle {
-  font-size: 1rem;
+  font-size: 0.9375rem;
   color: var(--muted);
   margin: 0;
+  line-height: 1.5;
 }
 
+/* ─── Filter Bar ──────────────────────────────────────────────────────── */
 .filters {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+/* Wrapper needed so we can position the chevron correctly */
+.filterWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.filter {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 40px;
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 2.25rem 0 0.875rem;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.filter:hover {
+  border-color: #94a3b8;
+}
+
+.filter:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.filterChevron {
+  position: absolute;
+  right: 0.75rem;
+  pointer-events: none;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+}
+
+/* ─── KPI Grid ────────────────────────────────────────────────────────── */
+.kpiGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
 }
 
-.filter {
-  appearance: none;
-  background-color: var(--card);
+.kpiCard {
+  background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.625rem 1rem;
-  font-size: 0.875rem;
-  color: var(--foreground);
-  cursor: pointer;
-  text-align: left;
-  position: relative;
-  transition: border-color 0.2s;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06);
+  min-height: 130px;
 }
 
-.filter:hover {
-  border-color: var(--primary);
-}
-
-.filter::after {
-  content: "▾";
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--muted);
-  pointer-events: none;
-}
-
-.kpiGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
-}
-
+/* ─── Generic Card ────────────────────────────────────────────────────── */
 .card {
   background: var(--card);
   border: 1px solid var(--border);
@@ -74,38 +107,44 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06);
 }
 
-.kpiCard {
-  height: 145px;
-}
-
-.clicksChartCard {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-  min-height: 400px;
-  overflow: hidden;
-}
-
+/* ─── Card Header Row ─────────────────────────────────────────────────── */
 .cardHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
 }
 
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* ─── KPI Card Internals ──────────────────────────────────────────────── */
 .label {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
+  color: var(--muted);
+  line-height: 1;
+}
+
+.iconBox {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: var(--secondary);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
   color: var(--muted);
 }
 
+/* Legacy – kept for backward compat; replaced by iconBox in KpiCard */
 .icon {
   color: var(--muted);
   display: flex;
@@ -114,17 +153,19 @@
 }
 
 .value {
-  font-size: 2rem;
+  font-size: 1.875rem;
   font-weight: 700;
   color: var(--foreground);
   margin: 0;
+  line-height: 1.1;
 }
 
 .trend {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  margin-top: auto;
 }
 
 .trendUp {
@@ -135,22 +176,30 @@
   color: #ef4444;
 }
 
-.chartHeader {
+/* ─── Clicks Chart Card ───────────────────────────────────────────────── */
+.clicksChartCard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06);
+  /* Height: header (~56px) + gap(24px) + chart (300px) + bottom padding(24px) = ~404px */
+  /* Use min-height so it never clips the chart */
+  min-height: 420px;
 }
 
 .chartTitle {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--foreground);
   margin: 0;
+  line-height: 1.4;
 }
 
 .chartSubtitle {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: var(--muted);
   margin: 0;
 }
@@ -158,32 +207,35 @@
 .chartContainer {
   width: 100%;
   height: 300px;
+  margin-top: 1.5rem;
 }
 
+/* ─── Breakdown Grid (Traffic / Device / Geo) ─────────────────────────── */
 .breakdownGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
+/* ─── Traffic Sources ─────────────────────────────────────────────────── */
 .sourceList {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  margin-top: 1rem;
+  gap: 1rem;
+  margin-top: 0.75rem;
 }
 
 .sourceRow {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.375rem;
 }
 
 .sourceInfo {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
 }
 
 .sourceName {
@@ -193,6 +245,7 @@
 
 .sourceStats {
   color: var(--muted);
+  white-space: nowrap;
 }
 
 .progressContainer {
@@ -209,12 +262,14 @@
   transition: width 0.3s ease;
 }
 
+/* ─── Device Breakdown ────────────────────────────────────────────────── */
 .donutContainer {
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 1rem 0;
+  margin: 0.75rem 0 0.5rem;
+  height: 200px;
 }
 
 .donutCenter {
@@ -225,6 +280,8 @@
   justify-content: center;
   text-align: center;
   pointer-events: none;
+  /* Centered over the Recharts PieChart */
+  inset: 0;
 }
 
 .donutValue {
@@ -237,20 +294,23 @@
 .donutLabel {
   font-size: 0.75rem;
   color: var(--muted);
+  margin-top: 0.125rem;
 }
 
 .deviceLegend {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 1rem;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin-top: 0.5rem;
+  justify-content: center;
 }
 
 .legendItem {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
   color: var(--foreground);
 }
 
@@ -258,27 +318,31 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .legendText {
   font-weight: 400;
+  white-space: nowrap;
 }
 
+/* ─── Geographic Distribution ─────────────────────────────────────────── */
 .mapPlaceholder {
   background-color: var(--secondary);
   border: 1px solid var(--border);
   border-radius: 8px;
-  margin-bottom: 1.5rem;
+  margin: 0.75rem 0 1rem;
+  height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  overflow: hidden;
 }
 
 .countryList {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.625rem;
 }
 
 .countryRow {
@@ -297,50 +361,50 @@
   color: var(--foreground);
 }
 
+/* ─── Top Links Table ─────────────────────────────────────────────────── */
 .linksTable {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  margin-top: 1rem;
+  margin-top: 0.75rem;
 }
 
 .linkRow {
   display: grid;
-  grid-template-columns: 40px 1fr 150px;
+  grid-template-columns: 36px 1fr auto;
   align-items: center;
+  gap: 1rem;
   padding: 1rem 0;
   border-bottom: 1px solid var(--border);
-  transition: background-color 0.2s;
+  transition: background-color 0.15s;
 }
 
 .linkRow:last-child {
   border-bottom: none;
+  padding-bottom: 0;
 }
 
 .linkRow:hover {
   background-color: var(--secondary);
+  margin: 0 -0.5rem;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  border-radius: 6px;
 }
 
-.linkLeft {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  overflow: hidden;
+.rank {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  line-height: 1;
 }
 
 .urlGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.1875rem;
   overflow: hidden;
-}
-
-.rank {
-  font-size: 0.875rem;
-  color: var(--muted);
-  font-family: var(--font-geist-mono);
-  text-align: center;
-  min-width: 20px;
+  min-width: 0;
 }
 
 .shortUrl {
@@ -353,6 +417,10 @@
   text-overflow: ellipsis;
 }
 
+.shortUrl:hover {
+  text-decoration: underline;
+}
+
 .destUrl {
   font-size: 0.75rem;
   color: var(--muted);
@@ -363,25 +431,30 @@
 
 .linkRight {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  gap: 2rem;
-  text-align: right;
+  gap: 1.5rem;
+  justify-content: flex-end;
+  flex-shrink: 0;
 }
 
 .clickCount {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  min-width: 52px;
 }
 
 .percentage {
   font-size: 0.875rem;
   color: var(--muted);
-  width: 60px;
+  font-variant-numeric: tabular-nums;
   text-align: right;
+  min-width: 44px;
 }
 
+/* ─── Responsive ──────────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .kpiGrid {
     grid-template-columns: repeat(2, 1fr);
@@ -392,35 +465,40 @@
   .breakdownGrid {
     grid-template-columns: repeat(2, 1fr);
   }
+  .breakdownGrid > *:last-child {
+    grid-column: span 2;
+    max-width: 50%;
+  }
 }
 
 @media (max-width: 640px) {
+  .kpiGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .filters {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .breakdownGrid {
+    grid-template-columns: 1fr;
+  }
+  .breakdownGrid > *:last-child {
+    grid-column: unset;
+    max-width: 100%;
+  }
+  .linkRow {
+    grid-template-columns: 28px 1fr auto;
+    gap: 0.75rem;
+  }
+  .linkRight {
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 420px) {
   .kpiGrid {
     grid-template-columns: 1fr;
   }
   .filters {
     grid-template-columns: 1fr;
-  }
-  .breakdownGrid {
-    grid-template-columns: 1fr;
-  }
-  .linkRow {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 1rem;
-  }
-  .linkLeft {
-    width: 100%;
-    justify-content: flex-start;
-  }
-  .linkRight {
-    width: 100%;
-    justify-content: space-between;
-    gap: 0;
-    padding-top: 0.5rem;
-    border-top: 1px dashed var(--border);
-    padding-block: 0.5rem 0;
   }
 }
