@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import styles from "./analytics.module.css";
 import { KpiCard } from "@/components/analytics/KpiCard";
 import { ClicksChart } from "@/components/analytics/ClicksChart";
@@ -23,7 +25,48 @@ const ChevronDown = () => (
   </svg>
 );
 
+// ── Filter option lists derived from mock data ───────────────────────────────
+
+const LINK_OPTIONS = [
+  { value: "all", label: "All links" },
+  ...ANALYTICS_MOCK_DATA.topLinks.map((l) => ({
+    value: l.shortUrl,
+    label: l.shortUrl,
+  })),
+];
+
+const COUNTRY_OPTIONS = [
+  { value: "all", label: "All countries" },
+  ...ANALYTICS_MOCK_DATA.geoDistribution.map((g) => ({
+    value: g.country,
+    label: g.country,
+  })),
+];
+
+const DEVICE_OPTIONS = [
+  { value: "all", label: "All devices" },
+  ...ANALYTICS_MOCK_DATA.deviceBreakdown.map((d) => ({
+    value: d.device.toLowerCase(),
+    label: d.device,
+  })),
+];
+
+const DATE_OPTIONS = [
+  { value: "30d", label: "Last 30 days" },
+  { value: "7d",  label: "Last 7 days" },
+  { value: "24h", label: "Last 24 hours" },
+  { value: "90d", label: "Last 90 days" },
+  { value: "custom", label: "Custom range" },
+];
+
+// ── Page ─────────────────────────────────────────────────────────────────────
+
 export default function AnalyticsPage() {
+  const [dateRange, setDateRange] = useState("30d");
+  const [selectedLink, setSelectedLink] = useState("all");
+  const [selectedCountry, setSelectedCountry] = useState("all");
+  const [selectedDevice, setSelectedDevice] = useState("all");
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -34,39 +77,76 @@ export default function AnalyticsPage() {
       </header>
 
       <div className={styles.filters}>
+        {/* Date range */}
         <div className={styles.filterWrapper}>
-          <select className={styles.filter}>
-            <option>Last 30 days</option>
-            <option>Last 7 days</option>
-            <option>Last 24 hours</option>
-            <option>Custom range</option>
+          <select
+            className={styles.filter}
+            value={dateRange}
+            onChange={(e) => setDateRange(e.target.value)}
+            aria-label="Date range"
+          >
+            {DATE_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
           </select>
           <span className={styles.filterChevron}>
             <ChevronDown />
           </span>
         </div>
 
+        {/* Links */}
         <div className={styles.filterWrapper}>
-          <select className={styles.filter}>
-            <option>All links</option>
+          <select
+            className={styles.filter}
+            value={selectedLink}
+            onChange={(e) => setSelectedLink(e.target.value)}
+            aria-label="Filter by link"
+          >
+            {LINK_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
           </select>
           <span className={styles.filterChevron}>
             <ChevronDown />
           </span>
         </div>
 
+        {/* Countries */}
         <div className={styles.filterWrapper}>
-          <select className={styles.filter}>
-            <option>All countries</option>
+          <select
+            className={styles.filter}
+            value={selectedCountry}
+            onChange={(e) => setSelectedCountry(e.target.value)}
+            aria-label="Filter by country"
+          >
+            {COUNTRY_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
           </select>
           <span className={styles.filterChevron}>
             <ChevronDown />
           </span>
         </div>
 
+        {/* Devices */}
         <div className={styles.filterWrapper}>
-          <select className={styles.filter}>
-            <option>All devices</option>
+          <select
+            className={styles.filter}
+            value={selectedDevice}
+            onChange={(e) => setSelectedDevice(e.target.value)}
+            aria-label="Filter by device"
+          >
+            {DEVICE_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
           </select>
           <span className={styles.filterChevron}>
             <ChevronDown />
