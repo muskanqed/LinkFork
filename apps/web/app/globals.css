@@ -7,6 +7,7 @@
   --primary: #2563eb;
   --primary-foreground: #ffffff;
   --card: #ffffff;
+  --card-background: #ffffff;
   --card-foreground: #0f172a;
   --secondary: #f1f5f9;
   --secondary-foreground: #0f172a;
@@ -34,6 +35,7 @@
   --primary: #3b82f6;
   --primary-foreground: #ffffff;
   --card: #1e293b;
+  --card-background: #1e293b;
   --card-foreground: #f8fafc;
   --secondary: #1e293b;
   --secondary-foreground: #f8fafc;
