@@ -1,0 +1,87 @@
+/* Card component styles */
+.card {
+  background: var(--card-background);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.cardDefault {
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.cardElevated {
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.cardOutlined {
+  border: 2px solid var(--border);
+  background: transparent;
+}
+
+/* Padding variants */
+.paddingNone {
+  padding: 0;
+}
+
+.paddingSm {
+  padding: 1rem;
+}
+
+.paddingMd {
+  padding: 1.5rem;
+}
+
+.paddingLg {
+  padding: 2rem;
+}
+
+/* Card sections */
+.cardHeader {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--card-background);
+}
+
+.cardContent {
+  padding: 1.5rem;
+}
+
+.cardFooter {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+  background: var(--secondary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .paddingMd {
+    padding: 1.25rem;
+  }
+  
+  .paddingLg {
+    padding: 1.5rem;
+  }
+  
+  .cardHeader,
+  .cardContent {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .paddingMd {
+    padding: 1rem;
+  }
+  
+  .paddingLg {
+    padding: 1.25rem;
+  }
+  
+  .cardHeader,
+  .cardContent {
+    padding: 1rem;
+  }
+}

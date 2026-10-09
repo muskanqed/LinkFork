@@ -1,0 +1,133 @@
+/* Button component styles */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: inherit;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Size variants */
+.buttonSm {
+  height: 32px;
+  padding: 0 0.875rem;
+  font-size: 0.8125rem;
+}
+
+.buttonMd {
+  height: 40px;
+  padding: 0 1.25rem;
+  font-size: 0.875rem;
+}
+
+.buttonLg {
+  height: 48px;
+  padding: 0 1.5rem;
+  font-size: 1rem;
+}
+
+/* Width variant */
+.buttonFull {
+  width: 100%;
+}
+
+/* Variant styles */
+.buttonPrimary {
+  background: linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 80%, #8b5cf6) 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+}
+
+.buttonPrimary:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--primary-hover) 0%, color-mix(in srgb, var(--primary-hover) 80%, #8b5cf6) 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.buttonPrimary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.2);
+}
+
+.buttonSecondary {
+  background: var(--secondary);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+
+.buttonSecondary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--secondary) 80%, var(--primary));
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.buttonOutline {
+  background: transparent;
+  color: var(--foreground);
+  border: 2px solid var(--border);
+}
+
+.buttonOutline:hover:not(:disabled) {
+  background: var(--secondary);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.buttonGhost {
+  background: transparent;
+  color: var(--foreground);
+  border: 1px solid transparent;
+}
+
+.buttonGhost:hover:not(:disabled) {
+  background: var(--secondary);
+  color: var(--primary);
+}
+
+.buttonDanger {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+}
+
+.buttonDanger:hover:not(:disabled) {
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+/* Loading state */
+.buttonLoading {
+  cursor: wait;
+}
+
+.loadingSpinner {
+  display: inline-flex;
+  align-items: center;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Disabled state */
+.buttonDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
