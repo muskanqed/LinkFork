@@ -1,10 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSignup, useCurrentUser } from "@/hooks/useAuth";
 import styles from "./signup.module.css";
 
 export default function SignupPage() {
+  const router = useRouter();
+  const { data: user, isLoading: isCheckingAuth } = useCurrentUser();
+  const signupMutation = useSignup();
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -12,33 +18,33 @@ export default function SignupPage() {
     confirmPassword: "",
   });
   const [agreed, setAgreed] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [clientError, setClientError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (!isCheckingAuth && user) {
+      router.replace("/dashboard");
+    }
+  }, [isCheckingAuth, user, router]);
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setClientError(null);
+
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      setClientError("Passwords do not match");
       return;
     }
-    setIsLoading(true);
-    setError(null);
-    try {
-      const { apiRequest } = await import("@/lib/api");
-      await apiRequest("/auth/signup", {
-        method: "POST",
-        body: JSON.stringify({
-          name: formData.fullName,
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
-      window.location.href = "/login";
-    } catch (err: any) {
-      setError(err.message || "An error occurred during signup");
-    } finally {
-      setIsLoading(false);
+
+    if (!agreed) {
+      setClientError("Please agree to the Terms of Service and Privacy Policy");
+      return;
     }
+
+    signupMutation.mutate({
+      name: formData.fullName,
+      email: formData.email,
+      password: formData.password,
+    });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -116,9 +122,9 @@ export default function SignupPage() {
             </div>
 
             <form className={styles.form} onSubmit={handleSubmit}>
-              {error && (
-                <div style={{ color: "red", fontSize: "0.875rem", textAlign: "center", marginBottom: "1rem" }}>
-                  {error}
+              {(clientError || signupMutation.error) && (
+                <div style={{ color: "#ef4444", fontSize: "0.875rem", textAlign: "center", marginBottom: "1rem" }}>
+                  {clientError || signupMutation.error?.message || "An error occurred during signup"}
                 </div>
               )}
               <div className={styles.field}>
@@ -186,8 +192,12 @@ export default function SignupPage() {
                 </span>
               </label>
 
-              <button type="submit" className={styles.submitButton} disabled={isLoading}>
-                {isLoading ? "Creating account..." : "Create Account"}
+              <button
+                type="submit"
+                className={styles.submitButton}
+                disabled={signupMutation.isPending || isCheckingAuth}
+              >
+                {signupMutation.isPending ? "Creating account..." : "Create Account"}
               </button>
             </form>
 

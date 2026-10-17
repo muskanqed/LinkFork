@@ -3,7 +3,18 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useCurrentUser, useLogout } from "@/hooks/useAuth";
 import styles from "../../../app/shell.module.css";
+
+function getInitials(name?: string): string {
+  if (!name) return "U";
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "U";
+  const first = parts[0] ?? "";
+  if (parts.length === 1) return first.slice(0, 2).toUpperCase();
+  const last = parts[parts.length - 1] ?? "";
+  return ((first[0] ?? "") + (last[0] ?? "")).toUpperCase() || "U";
+}
 
 const NAV_GROUPS = [
   {
@@ -99,6 +110,8 @@ interface SidebarProps {
 export const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
   const pathname = usePathname();
   const isActive = (path: string) => pathname === path;
+  const { data: user } = useCurrentUser();
+  const logoutMutation = useLogout();
 
   return (
     <aside className={`${styles.sidebar} ${isOpen ? styles.open : ""}`}>
@@ -137,16 +150,27 @@ export const Sidebar = ({ isOpen, setIsOpen }: SidebarProps) => {
 
         <div className={styles.sidebarFooter}>
           <div className={styles.userProfile}>
-            <div className={styles.userAvatar}>AM</div>
+            <div className={styles.userAvatar}>
+              {getInitials(user?.name)}
+            </div>
             <div className={styles.userInfo}>
-              <p className={styles.userName}>Alex Morgan</p>
-              <p className={styles.userEmail}>alex@acme.dev</p>
+              <p className={styles.userName}>{user?.name || "User"}</p>
+              <p className={styles.userEmail}>{user?.email || ""}</p>
             </div>
-            <div className={styles.userChevron}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m6 9 6 6 6-6" />
+            <button
+              type="button"
+              className={styles.logoutButton}
+              onClick={() => logoutMutation.mutate()}
+              disabled={logoutMutation.isPending}
+              title="Sign out"
+              aria-label="Sign out"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
               </svg>
-            </div>
+            </button>
           </div>
         </div>
     </aside>

@@ -1,32 +1,29 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useLogin, useCurrentUser } from "@/hooks/useAuth";
 import styles from "./login.module.css";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { data: user, isLoading: isCheckingAuth } = useCurrentUser();
+  const loginMutation = useLogin();
+
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-    try {
-      const { apiRequest } = await import("@/lib/api");
-      await apiRequest("/auth/login", {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-      });
-      window.location.href = "/dashboard";
-    } catch (err: any) {
-      setError(err.message || "Invalid email or password");
-    } finally {
-      setIsLoading(false);
+  useEffect(() => {
+    if (!isCheckingAuth && user) {
+      router.replace("/dashboard");
     }
+  }, [isCheckingAuth, user, router]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    loginMutation.mutate({ email, password });
   };
 
   return (
@@ -57,9 +54,9 @@ export default function LoginPage() {
         </div>
 
         <form className={styles.form} onSubmit={handleSubmit}>
-          {error && (
-            <div style={{ color: "red", fontSize: "0.875rem", textAlign: "center", marginBottom: "1rem" }}>
-              {error}
+          {loginMutation.error && (
+            <div style={{ color: "#ef4444", fontSize: "0.875rem", textAlign: "center", marginBottom: "1rem" }}>
+              {loginMutation.error.message || "Invalid email or password"}
             </div>
           )}
           <div className={styles.field}>
@@ -121,8 +118,12 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <button type="submit" className={styles.submitButton} disabled={isLoading}>
-            {isLoading ? "Signing in..." : "Sign In"}
+          <button
+            type="submit"
+            className={styles.submitButton}
+            disabled={loginMutation.isPending || isCheckingAuth}
+          >
+            {loginMutation.isPending ? "Signing in..." : "Sign In"}
           </button>
         </form>
 

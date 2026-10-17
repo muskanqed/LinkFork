@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useCurrentUser } from "@/hooks/useAuth";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 import styles from "../../../app/shell.module.css";
@@ -11,6 +13,14 @@ interface AppShellProps {
 
 export const AppShell = ({ children }: AppShellProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+  const { data: user, isLoading } = useCurrentUser();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace("/login");
+    }
+  }, [isLoading, user, router]);
 
   return (
     <div className={styles.appShell}>

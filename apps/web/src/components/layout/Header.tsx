@@ -2,7 +2,18 @@
 
 import React, { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { useCurrentUser } from "@/hooks/useAuth";
 import styles from "../../../app/shell.module.css";
+
+function getInitials(name?: string): string {
+  if (!name) return "U";
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "U";
+  const first = parts[0] ?? "";
+  if (parts.length === 1) return first.slice(0, 2).toUpperCase();
+  const last = parts[parts.length - 1] ?? "";
+  return ((first[0] ?? "") + (last[0] ?? "")).toUpperCase() || "U";
+}
 
 const ROUTE_META: Record<string, { title: string; subtitle: string }> = {
   "/dashboard":     { title: "Dashboard",  subtitle: "Acme workspace" },
@@ -25,6 +36,7 @@ function useRouteTitle() {
 export const Header = () => {
   const { title, subtitle } = useRouteTitle();
   const [theme, setTheme] = useState("light");
+  const { data: user } = useCurrentUser();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") || "light";
@@ -43,7 +55,9 @@ export const Header = () => {
     <header className={styles.appHeader}>
       <div className={styles.headerLeft}>
         <h2 className={styles.headerTitle}>{title}</h2>
-        <span className={styles.headerSubtitle}>{subtitle}</span>
+        <span className={styles.headerSubtitle}>
+          {user?.name ? `${user.name}'s workspace` : subtitle}
+        </span>
       </div>
       <div className={styles.headerRight}>
         <div className={styles.searchWrapper}>
@@ -97,8 +111,11 @@ export const Header = () => {
             <line x1="12" y1="17" x2="12.01" y2="17" />
           </svg>
         </button>
-        <div className={styles.headerAvatar}>
-          AM
+        <div
+          className={styles.headerAvatar}
+          title={user ? `${user.name} (${user.email})` : "Account"}
+        >
+          {getInitials(user?.name)}
         </div>
       </div>
     </header>
