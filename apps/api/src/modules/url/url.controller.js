@@ -1,4 +1,4 @@
-const { success } = require("zod");
+
 const urlService = require("./url.service");
 
 const createUrl = async (req, res) => {
@@ -13,7 +13,7 @@ const createUrl = async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    return res.status(400).json({
+    return res.status(error.statusCode || 400).json({
       success: false,
       message: error.message,
     });
@@ -22,24 +22,92 @@ const createUrl = async (req, res) => {
 
 const getUrls = async (req, res) => {
   try {
-    const urls = urlService.getUrls(req.userId);
+    const urls = await urlService.getUrls(req.userId);
 
-    return res.status(200).send({
+    return res.status(200).json({
       success: true,
-      data: urls
+      data: urls,
     });
-  }
-  catch (error) {
-    console.log(error);
+  } catch (error) {
+    console.error(error);
 
-    return res.status(400).send({
+    return res.status(500).json({
       success: false,
-      message: error.message
+      message: "Failed to fetch URLs",
     });
   }
-}
+};
+
+const getUrlById = async (req, res) => {
+  try {
+    const url = await urlService.getUrlById(
+      req.params.id,
+      req.userId
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: url,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(error.statusCode || 400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const updateUrl = async (req, res) => {
+  try {
+    const url = await urlService.updateUrl(
+      req.params.id,
+      req.body,
+      req.userId
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "URL updated successfully",
+      data: url,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(error.statusCode || 400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const deleteUrl = async (req, res) => {
+  try {
+    const url = await urlService.deleteUrl(
+      req.params.id,
+      req.userId
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "URL deleted successfully",
+      data: url,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(error.statusCode || 400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 module.exports = {
   createUrl,
-  getUrls
+  getUrls,
+  getUrlById,
+  updateUrl,
+  deleteUrl,
 };
