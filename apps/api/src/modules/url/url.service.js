@@ -1,5 +1,6 @@
 
 const { nanoid } = require("nanoid");
+const clickRepository = require("../clicks/click.repository")
 
 const urlRepository = require("./url.repository");
 const {
@@ -63,6 +64,7 @@ const deleteUrl = async (id, userId) => {
 
   return urlRepository.deleteUrl(id);
 };
+
 
 module.exports = {
   createUrl,

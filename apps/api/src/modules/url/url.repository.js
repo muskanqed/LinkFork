@@ -30,7 +30,7 @@ const findByUserId = async (userId) => {
 };
 
 const findById = async (id) => {
-  return prisma.url.findById({
+  return prisma.url.findUnique({
     where: {
       id
     }
@@ -71,5 +71,5 @@ module.exports = {
   findByUserId,
   findById,
   updateUrl,
-  deleteUrl
+  deleteUrl,
 }
