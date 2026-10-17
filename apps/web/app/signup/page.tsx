@@ -50,7 +50,7 @@ export default function SignupPage() {
       <div className={styles.content}>
         <div className={styles.leftPanel}>
           <div className={styles.brand}>
-            <div className={styles.logoIcon}>
+            <div className={styles.logoIcon} style={{ width: "3rem", height: "3rem", position: "relative", top: "-0.8rem" }}>
               <svg
                 width="20"
                 height="20"
@@ -65,10 +65,10 @@ export default function SignupPage() {
                 <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
               </svg>
             </div>
-            <span className={styles.brandText}>LinkFork</span>
+            <span className={styles.brandText} style={{ fontSize: "3rem", position: "relative", top: "-0.5rem" }}>LinkFork</span>
           </div>
 
-          <div className={styles.hero}>
+          <div className={styles.hero} style={{ position: "relative", top: "-4rem" }}>
             <h1 className={styles.headline}>
               Every click tells a story.<br />
               Make yours count.
@@ -77,7 +77,7 @@ export default function SignupPage() {
             <div className={styles.features}>
               <div className={styles.feature}>
                 <div className={styles.featureIcon}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
                 </div>
                 <div className={styles.featureText}>
                   <span className={styles.featureTitle}>Shorten links instantly</span>
@@ -87,7 +87,7 @@ export default function SignupPage() {
 
               <div className={styles.feature}>
                 <div className={styles.featureIcon}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83" /><path d="M22 12A10 10 0 0 0 12 2v10z" /></svg>
                 </div>
                 <div className={styles.featureText}>
                   <span className={styles.featureTitle}>Track every click</span>
@@ -97,7 +97,7 @@ export default function SignupPage() {
 
               <div className={styles.feature}>
                 <div className={styles.featureIcon}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></svg>
                 </div>
                 <div className={styles.featureText}>
                   <span className={styles.featureTitle}>Understand your audience</span>
