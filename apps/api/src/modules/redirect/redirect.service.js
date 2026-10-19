@@ -1,5 +1,5 @@
 const redirectRepository = require("./redirect.repository");
-const clickRepository = require("../clicks/click.repository")
+const clickService = require("../clicks/click.service");
 
 const redirectUrl = async (shortCode) => {
     const url = await redirectRepository.findByShortCode(shortCode)
@@ -10,7 +10,7 @@ const redirectUrl = async (shortCode) => {
         throw error;
     }
 
-    await clickRepository.createClick(url.id)
+    await clickService.recordClicks(url.id)
 
     return url.originalUrl
 }
