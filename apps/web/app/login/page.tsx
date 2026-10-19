@@ -152,7 +152,7 @@ export default function LoginPage() {
         </button>
 
         <div className={styles.signupNav}>
-          Don't have an account? <Link href="/signup">Sign up</Link>
+          Don&apos;t have an account? <Link href="/signup">Sign up</Link>
         </div>
       </div>
 

@@ -3,7 +3,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 function parseErrorMessage(message: unknown): string {
   if (typeof message !== 'string') {
     if (message && typeof message === 'object' && 'message' in message) {
-      return String((message as any).message);
+      return String((message as { message?: unknown }).message);
     }
     return 'An error occurred';
   }
@@ -12,7 +12,11 @@ function parseErrorMessage(message: unknown): string {
     const parsed = JSON.parse(message);
     if (Array.isArray(parsed) && parsed.length > 0) {
       const messages = parsed
-        .map((item: any) => item?.message)
+        .map((item: unknown) =>
+          item && typeof item === 'object' && 'message' in item
+            ? String((item as { message?: unknown }).message)
+            : null
+        )
         .filter(Boolean);
       if (messages.length > 0) {
         return messages.join('. ');
@@ -27,9 +31,9 @@ function parseErrorMessage(message: unknown): string {
 
 export class ApiError extends Error {
   status: number;
-  data: any;
+  data: unknown;
 
-  constructor(message: string, status: number, data?: any) {
+  constructor(message: string, status: number, data?: unknown) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
@@ -37,7 +41,7 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiRequest<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
+export async function apiRequest<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
   const response = await fetch(url, {
     credentials: 'include',

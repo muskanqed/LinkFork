@@ -1,13 +1,20 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useCurrentUser } from "@/hooks/useAuth";
 import styles from "./settings.module.css";
 
 export default function SettingsPage() {
-  const [name, setName] = useState("Alex Morgan");
-  const [email, setEmail] = useState("alex@linkfork.io");
+  const { data: user } = useCurrentUser();
+  const [name, setName] = useState(user?.name || "Alex Morgan");
+  const [email, setEmail] = useState(user?.email || "alex@linkfork.io");
   const [workspace, setWorkspace] = useState("LinkFork");
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (user?.name) setName(user.name);
+    if (user?.email) setEmail(user.email);
+  }, [user]);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();

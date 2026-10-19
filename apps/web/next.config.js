@@ -1,3 +1,6 @@
+/* eslint-env node */
+/* eslint-disable no-undef */
+/* eslint-disable turbo/no-undeclared-env-vars */
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async rewrites() {

@@ -16,8 +16,14 @@ interface ClicksChartProps {
   data: { date: string; clicks: number }[];
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: { value: number }[];
+  label?: string;
+}
+
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+  if (active && payload && payload.length && payload[0]) {
     return (
       <div style={{
         backgroundColor: "var(--card)",

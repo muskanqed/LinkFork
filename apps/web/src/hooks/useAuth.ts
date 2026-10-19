@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { authApi, LoginPayload, SignupPayload, User } from "@/lib/auth-api";
+import { ApiError } from "@/lib/api";
 
 export const authKeys = {
   all: ["auth"] as const,
@@ -15,19 +16,20 @@ export function useCurrentUser() {
     queryFn: async (): Promise<User | null> => {
       try {
         return await authApi.getMe();
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (
-          err?.status === 401 ||
-          err?.message?.includes("Authentication required") ||
-          err?.message?.includes("token")
+          (err instanceof ApiError && err.status === 401) ||
+          (err instanceof Error &&
+            (err.message.includes("Authentication required") ||
+              err.message.includes("token")))
         ) {
           return null;
         }
         throw err;
       }
     },
-    retry: (failureCount, error: any) => {
-      if (error?.status === 401) return false;
+    retry: (failureCount, error: unknown) => {
+      if (error instanceof ApiError && error.status === 401) return false;
       return failureCount < 1;
     },
     staleTime: 5 * 60 * 1000,
