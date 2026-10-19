@@ -60,10 +60,10 @@ export const ANALYTICS_MOCK_DATA = {
     { country: "United Kingdom", percentage: 13 },
   ],
   topLinks: [
-    { rank: "01", shortUrl: "linkfork.io/launch", destination: "https://acme.com/product-launch", clicks: "24,382", percentage: "16.8%" },
-    { rank: "02", shortUrl: "linkfork.io/docs", destination: "https://docs.acme.com/getting-started", clicks: "18,804", percentage: "14.2%" },
-    { rank: "03", shortUrl: "linkfork.io/github", destination: "https://github.com/acme/platform", clicks: "12,219", percentage: "11.9%" },
-    { rank: "04", shortUrl: "linkfork.io/summer", destination: "https://acme.com/campaigns/summer", clicks: "8,947", percentage: "9.4%" },
-    { rank: "05", shortUrl: "linkfork.io/demo", destination: "https://demo.acme.com/request", clicks: "6,201", percentage: "8.7%" },
+    { rank: "01", shortUrl: "linkfork.io/launch", destination: "https://linkfork.io/product-launch", clicks: "24,382", percentage: "16.8%" },
+    { rank: "02", shortUrl: "linkfork.io/docs", destination: "https://docs.linkfork.io/getting-started", clicks: "18,804", percentage: "14.2%" },
+    { rank: "03", shortUrl: "linkfork.io/github", destination: "https://github.com/linkfork/platform", clicks: "12,219", percentage: "11.9%" },
+    { rank: "04", shortUrl: "linkfork.io/summer", destination: "https://linkfork.io/campaigns/summer", clicks: "8,947", percentage: "9.4%" },
+    { rank: "05", shortUrl: "linkfork.io/demo", destination: "https://demo.linkfork.io/request", clicks: "6,201", percentage: "8.7%" },
   ],
 };

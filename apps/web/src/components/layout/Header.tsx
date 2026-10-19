@@ -16,21 +16,21 @@ function getInitials(name?: string): string {
 }
 
 const ROUTE_META: Record<string, { title: string; subtitle: string }> = {
-  "/dashboard":     { title: "Dashboard",  subtitle: "Acme workspace" },
-  "/links":         { title: "Links",       subtitle: "Acme workspace" },
-  "/links/create":  { title: "Create Link", subtitle: "Acme workspace" },
-  "/analytics":     { title: "Analytics",   subtitle: "Acme workspace" },
-  "/billing":       { title: "Billing",     subtitle: "Acme workspace" },
-  "/settings":      { title: "Settings",    subtitle: "Acme workspace" },
+  "/dashboard":     { title: "Dashboard",  subtitle: "LinkFork workspace" },
+  "/links":         { title: "Links",       subtitle: "LinkFork workspace" },
+  "/links/create":  { title: "Create Link", subtitle: "LinkFork workspace" },
+  "/analytics":     { title: "Analytics",   subtitle: "LinkFork workspace" },
+  "/billing":       { title: "Billing",     subtitle: "LinkFork workspace" },
+  "/settings":      { title: "Settings",    subtitle: "LinkFork workspace" },
 };
 
 function useRouteTitle() {
   const pathname = usePathname();
   // dynamic segments: /links/[id]
   if (pathname.startsWith("/links/") && pathname !== "/links/create") {
-    return { title: "Link Detail", subtitle: "Acme workspace" };
+    return { title: "Link Detail", subtitle: "LinkFork workspace" };
   }
-  return ROUTE_META[pathname] ?? { title: "LinkFork", subtitle: "Acme workspace" };
+  return ROUTE_META[pathname] ?? { title: "LinkFork", subtitle: "LinkFork workspace" };
 }
 
 export const Header = () => {

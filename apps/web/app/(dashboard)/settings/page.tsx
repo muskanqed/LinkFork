@@ -5,8 +5,8 @@ import styles from "./settings.module.css";
 
 export default function SettingsPage() {
   const [name, setName] = useState("Alex Morgan");
-  const [email, setEmail] = useState("alex@acme.dev");
-  const [workspace, setWorkspace] = useState("Acme");
+  const [email, setEmail] = useState("alex@linkfork.io");
+  const [workspace, setWorkspace] = useState("LinkFork");
   const [saved, setSaved] = useState(false);
 
   const handleSave = (e: React.FormEvent) => {

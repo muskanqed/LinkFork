@@ -3,11 +3,11 @@ import Link from "next/link";
 import styles from "./link-detail.module.css";
 
 const LINK_DETAIL = {
-  "1": { short: "linkfork.io/launch", destination: "https://acme.com/product-launch", clicks: 24382, created: "Oct 1, 2026", status: "active" },
-  "2": { short: "linkfork.io/docs", destination: "https://docs.acme.com/getting-started", clicks: 18804, created: "Sep 28, 2026", status: "active" },
-  "3": { short: "linkfork.io/github", destination: "https://github.com/acme/platform", clicks: 12219, created: "Sep 22, 2026", status: "active" },
-  "4": { short: "linkfork.io/summer", destination: "https://acme.com/campaigns/summer", clicks: 8947, created: "Sep 15, 2026", status: "active" },
-  "5": { short: "linkfork.io/demo", destination: "https://demo.acme.com/request", clicks: 6201, created: "Sep 10, 2026", status: "active" },
+  "1": { short: "linkfork.io/launch", destination: "https://linkfork.io/product-launch", clicks: 24382, created: "Oct 1, 2026", status: "active" },
+  "2": { short: "linkfork.io/docs", destination: "https://docs.linkfork.io/getting-started", clicks: 18804, created: "Sep 28, 2026", status: "active" },
+  "3": { short: "linkfork.io/github", destination: "https://github.com/linkfork/platform", clicks: 12219, created: "Sep 22, 2026", status: "active" },
+  "4": { short: "linkfork.io/summer", destination: "https://linkfork.io/campaigns/summer", clicks: 8947, created: "Sep 15, 2026", status: "active" },
+  "5": { short: "linkfork.io/demo", destination: "https://demo.linkfork.io/request", clicks: 6201, created: "Sep 10, 2026", status: "active" },
 } as Record<string, { short: string; destination: string; clicks: number; created: string; status: string }>;
 
 const DAILY_STATS = [

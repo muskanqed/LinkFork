@@ -120,10 +120,10 @@ const ACTIVITY = [
 ];
 
 const TOP_LINKS = [
-  { short: "linkfork.io/launch", destination: "acme.com/product-launch",        clicks: "24,382", ctr: "16.8%", lastClicked: "2 min ago",  status: "Active"  },
-  { short: "linkfork.io/docs",   destination: "docs.acme.com/getting-started",  clicks: "18,804", ctr: "14.2%", lastClicked: "8 min ago",  status: "Active"  },
-  { short: "linkfork.io/github", destination: "github.com/acme/platform",       clicks: "12,219", ctr: "11.9%", lastClicked: "21 min ago", status: "Active"  },
-  { short: "linkfork.io/summer", destination: "acme.com/campaigns/summer",      clicks: "8,947",  ctr: "9.4%",  lastClicked: "3 days ago", status: "Paused"  },
+  { short: "linkfork.io/launch", destination: "linkfork.io/product-launch",        clicks: "24,382", ctr: "16.8%", lastClicked: "2 min ago",  status: "Active"  },
+  { short: "linkfork.io/docs",   destination: "docs.linkfork.io/getting-started",  clicks: "18,804", ctr: "14.2%", lastClicked: "8 min ago",  status: "Active"  },
+  { short: "linkfork.io/github", destination: "github.com/linkfork/platform",       clicks: "12,219", ctr: "11.9%", lastClicked: "21 min ago", status: "Active"  },
+  { short: "linkfork.io/summer", destination: "linkfork.io/campaigns/summer",      clicks: "8,947",  ctr: "9.4%",  lastClicked: "3 days ago", status: "Paused"  },
 ];
 
 // ── Custom tooltip ────────────────────────────────────────────────────────────
