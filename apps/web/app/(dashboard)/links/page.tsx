@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useUrlsWithClicks } from "@/hooks/useUrls";
 import { formatDate } from "@/lib/utils";
 import { UrlItem } from "@/lib/urls-api";
 import { EditUrlModal } from "@/components/links/EditUrlModal";
 import { DeleteUrlModal } from "@/components/links/DeleteUrlModal";
+import { LinkDetailModal } from "@/components/links/LinkDetailModal";
 import styles from "./links.module.css";
 
 // ── Icons ────────────────────────────────────────────────────────────────────
@@ -73,7 +75,11 @@ function StatusBadge({ status = "Active" }: { status?: string }) {
 
 // ── Page Component ────────────────────────────────────────────────────────────
 
-export default function LinksPage() {
+function LinksPageContent() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const { urls, rawUrls, isLoading, error, refetch } = useUrlsWithClicks();
 
   // Filters & Search
@@ -94,6 +100,33 @@ export default function LinksPage() {
   // Modals state
   const [editingUrl, setEditingUrl] = useState<UrlItem | null>(null);
   const [deletingUrl, setDeletingUrl] = useState<UrlItem | null>(null);
+
+  // Detail Modal state (synced with ?detail=id query param)
+  const detailUrlParam = searchParams.get("detail");
+  const [detailUrlId, setDetailUrlId] = useState<string | null>(detailUrlParam);
+
+  // Keep state in sync with URL searchParams (e.g. browser back/forward or direct link)
+  useEffect(() => {
+    setDetailUrlId(searchParams.get("detail"));
+  }, [searchParams]);
+
+  const handleOpenDetail = useCallback(
+    (id: string) => {
+      setDetailUrlId(id);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("detail", id);
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [pathname, searchParams, router]
+  );
+
+  const handleCloseDetail = useCallback(() => {
+    setDetailUrlId(null);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("detail");
+    const q = params.toString();
+    router.push(q ? `${pathname}?${q}` : pathname, { scroll: false });
+  }, [pathname, searchParams, router]);
 
   // Filtered & Sorted items
   const filteredLinks = useMemo(() => {
@@ -373,7 +406,20 @@ export default function LinksPage() {
               </thead>
               <tbody>
                 {paginatedLinks.map((link) => (
-                  <tr key={link.id} className={styles.tr}>
+                  <tr
+                    key={link.id}
+                    className={`${styles.tr} ${styles.trClickable}`}
+                    onClick={() => handleOpenDetail(link.id)}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`View details for ${link.shortCode}`}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleOpenDetail(link.id);
+                      }
+                    }}
+                  >
                     <td className={styles.td}>
                       <div className={styles.linkCell}>
                         <div
@@ -383,12 +429,17 @@ export default function LinksPage() {
                             gap: "0.4rem",
                           }}
                         >
-                          <Link
-                            href={`/links/${link.id}`}
+                          <a
+                            href={`/links?detail=${link.id}`}
                             className={styles.shortUrl}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleOpenDetail(link.id);
+                            }}
                           >
                             {link.shortUrl}
-                          </Link>
+                          </a>
                           {copiedId === link.id && (
                             <span className={styles.copiedToast}>✓ Copied</span>
                           )}
@@ -437,6 +488,7 @@ export default function LinksPage() {
                       {activeMenuId === link.id && (
                         <div
                           className={styles.actionMenu}
+                          onClick={(e) => e.stopPropagation()}
                           onMouseLeave={() => setActiveMenuId(null)}
                         >
                           <button
@@ -455,13 +507,16 @@ export default function LinksPage() {
                           >
                             <ExternalIcon /> Open in new tab
                           </a>
-                          <Link
-                            href={`/links/${link.id}`}
+                          <button
+                            type="button"
                             className={styles.actionItem}
-                            onClick={() => setActiveMenuId(null)}
+                            onClick={() => {
+                              setActiveMenuId(null);
+                              handleOpenDetail(link.id);
+                            }}
                           >
                             📊 View details
-                          </Link>
+                          </button>
                           <button
                             type="button"
                             className={styles.actionItem}
@@ -555,6 +610,12 @@ export default function LinksPage() {
         )}
       </div>
 
+      <LinkDetailModal
+        isOpen={Boolean(detailUrlId)}
+        urlId={detailUrlId}
+        onClose={handleCloseDetail}
+      />
+
       <EditUrlModal
         isOpen={Boolean(editingUrl)}
         url={editingUrl}
@@ -567,5 +628,13 @@ export default function LinksPage() {
         onClose={() => setDeletingUrl(null)}
       />
     </div>
+  );
+}
+
+export default function LinksPage() {
+  return (
+    <Suspense fallback={null}>
+      <LinksPageContent />
+    </Suspense>
   );
 }

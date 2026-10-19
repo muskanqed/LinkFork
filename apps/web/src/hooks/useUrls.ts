@@ -41,10 +41,17 @@ export function useUrls() {
 }
 
 export function useUrl(id: string) {
+  const queryClient = useQueryClient();
+
   return useQuery<UrlItem, Error>({
     queryKey: urlKeys.detail(id),
     queryFn: async () => {
       return urlsApi.getUrlById(id);
+    },
+    initialData: () => {
+      if (!id) return undefined;
+      const list = queryClient.getQueryData<UrlItem[]>(urlKeys.lists());
+      return list?.find((item) => item.id === id);
     },
     enabled: Boolean(id),
     staleTime: 30 * 1000,
@@ -65,6 +72,7 @@ export function useUrlClicks(urlId: string = "all") {
       }
       return undefined;
     },
+    enabled: Boolean(urlId),
     staleTime: 30 * 1000,
   });
 }
