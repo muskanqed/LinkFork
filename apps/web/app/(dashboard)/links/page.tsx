@@ -2,8 +2,11 @@
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
-import { useUrls, useUrlClicks, useUpdateUrl, useDeleteUrl } from "@/hooks/useUrls";
-import { formatShortUrl, UrlItem } from "@/lib/urls-api";
+import { useUrlsWithClicks } from "@/hooks/useUrls";
+import { formatDate } from "@/lib/utils";
+import { UrlItem } from "@/lib/urls-api";
+import { EditUrlModal } from "@/components/links/EditUrlModal";
+import { DeleteUrlModal } from "@/components/links/DeleteUrlModal";
 import styles from "./links.module.css";
 
 // ── Icons ────────────────────────────────────────────────────────────────────
@@ -57,20 +60,6 @@ const ExternalIcon = () => (
   </svg>
 );
 
-function formatDate(dateStr?: string): string {
-  if (!dateStr) return "—";
-  try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  } catch {
-    return dateStr;
-  }
-}
-
 // ── Status badge ──────────────────────────────────────────────────────────────
 
 function StatusBadge({ status = "Active" }: { status?: string }) {
@@ -85,11 +74,7 @@ function StatusBadge({ status = "Active" }: { status?: string }) {
 // ── Page Component ────────────────────────────────────────────────────────────
 
 export default function LinksPage() {
-  const { data: urls, isLoading, error, refetch } = useUrls();
-  const { data: clicksData } = useUrlClicks("all");
-
-  const updateMutation = useUpdateUrl();
-  const deleteMutation = useDeleteUrl();
+  const { urls, rawUrls, isLoading, error, refetch } = useUrlsWithClicks();
 
   // Filters & Search
   const [search, setSearch] = useState("");
@@ -106,36 +91,13 @@ export default function LinksPage() {
   // Copied feedback
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  // Edit modal state
+  // Modals state
   const [editingUrl, setEditingUrl] = useState<UrlItem | null>(null);
-  const [editDestination, setEditDestination] = useState("");
-  const [editError, setEditError] = useState<string | null>(null);
-
-  // Delete modal state
   const [deletingUrl, setDeletingUrl] = useState<UrlItem | null>(null);
 
-  // Map clicks by URL id
-  const clicksMap = useMemo(() => {
-    const map = new Map<string, number>();
-    if (Array.isArray(clicksData)) {
-      for (const item of clicksData) {
-        if (item.id && item._count) {
-          map.set(item.id, item._count.clicks || 0);
-        }
-      }
-    }
-    return map;
-  }, [clicksData]);
-
-  // Combined & Filtered items
+  // Filtered & Sorted items
   const filteredLinks = useMemo(() => {
-    if (!urls) return [];
-
-    let result = urls.map((u) => ({
-      ...u,
-      clicks: clicksMap.get(u.id) ?? 0,
-      shortUrl: formatShortUrl(u.shortCode),
-    }));
+    let result = [...urls];
 
     // Search filter
     if (search.trim()) {
@@ -180,7 +142,7 @@ export default function LinksPage() {
     });
 
     return result;
-  }, [urls, clicksMap, search, filterDate, filterSort]);
+  }, [urls, search, filterDate, filterSort]);
 
   // Pagination calculation
   const totalRecords = filteredLinks.length;
@@ -200,58 +162,14 @@ export default function LinksPage() {
     }, 2000);
   };
 
-  // Open Edit modal
   const handleOpenEdit = (url: UrlItem) => {
     setEditingUrl(url);
-    setEditDestination(url.originalUrl);
-    setEditError(null);
     setActiveMenuId(null);
   };
 
-  // Submit Edit
-  const handleSaveEdit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingUrl) return;
-
-    const trimmed = editDestination.trim();
-    if (!trimmed) {
-      setEditError("Destination URL cannot be empty");
-      return;
-    }
-
-    try {
-      const parsed = new URL(trimmed);
-      if (!["http:", "https:"].includes(parsed.protocol)) {
-        setEditError("URL must start with http:// or https://");
-        return;
-      }
-    } catch {
-      setEditError("Please enter a valid URL including https://");
-      return;
-    }
-
-    try {
-      await updateMutation.mutateAsync({
-        id: editingUrl.id,
-        payload: { originalUrl: trimmed },
-      });
-      setEditingUrl(null);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to update URL";
-      setEditError(msg);
-    }
-  };
-
-  // Submit Delete
-  const handleConfirmDelete = async () => {
-    if (!deletingUrl) return;
-    try {
-      await deleteMutation.mutateAsync(deletingUrl.id);
-      setDeletingUrl(null);
-      setActiveMenuId(null);
-    } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : "Failed to delete URL");
-    }
+  const handleOpenDelete = (url: UrlItem) => {
+    setDeletingUrl(url);
+    setActiveMenuId(null);
   };
 
   return (
@@ -394,40 +312,50 @@ export default function LinksPage() {
         )}
 
         {/* Empty State (User has no links at all) */}
-        {!isLoading && !error && urls && urls.length === 0 && (
+        {!isLoading && !error && rawUrls && rawUrls.length === 0 && (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>🔗</div>
             <h3 className={styles.emptyTitle}>No shortened links yet</h3>
             <p className={styles.emptyText}>
-              Create your first trackable short link to start gathering analytics and sharing clean URLs.
+              Create your first trackable short link to start gathering analytics
+              and sharing clean URLs.
             </p>
-            <Link href="/links/create" className={styles.createButton} style={{ marginTop: "0.5rem" }}>
+            <Link
+              href="/links/create"
+              className={styles.createButton}
+              style={{ marginTop: "0.5rem" }}
+            >
               Create your first link
             </Link>
           </div>
         )}
 
         {/* Filter Empty State (Search returned 0 results) */}
-        {!isLoading && !error && urls && urls.length > 0 && filteredLinks.length === 0 && (
-          <div className={styles.emptyState}>
-            <div className={styles.emptyIcon}>🔍</div>
-            <h3 className={styles.emptyTitle}>No matching links found</h3>
-            <p className={styles.emptyText}>
-              No links matched your search query or filter criteria. Try clearing your filters.
-            </p>
-            <button
-              type="button"
-              className={styles.retryBtn}
-              onClick={() => {
-                setSearch("");
-                setFilterDate("all");
-                setFilterSort("recent");
-              }}
-            >
-              Reset filters
-            </button>
-          </div>
-        )}
+        {!isLoading &&
+          !error &&
+          rawUrls &&
+          rawUrls.length > 0 &&
+          filteredLinks.length === 0 && (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>🔍</div>
+              <h3 className={styles.emptyTitle}>No matching links found</h3>
+              <p className={styles.emptyText}>
+                No links matched your search query or filter criteria. Try
+                clearing your filters.
+              </p>
+              <button
+                type="button"
+                className={styles.retryBtn}
+                onClick={() => {
+                  setSearch("");
+                  setFilterDate("all");
+                  setFilterSort("recent");
+                }}
+              >
+                Reset filters
+              </button>
+            </div>
+          )}
 
         {/* Table Content */}
         {!isLoading && !error && paginatedLinks.length > 0 && (
@@ -448,7 +376,13 @@ export default function LinksPage() {
                   <tr key={link.id} className={styles.tr}>
                     <td className={styles.td}>
                       <div className={styles.linkCell}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.4rem",
+                          }}
+                        >
                           <Link
                             href={`/links/${link.id}`}
                             className={styles.shortUrl}
@@ -538,10 +472,7 @@ export default function LinksPage() {
                           <button
                             type="button"
                             className={`${styles.actionItem} ${styles.actionItemDanger}`}
-                            onClick={() => {
-                              setDeletingUrl(link);
-                              setActiveMenuId(null);
-                            }}
+                            onClick={() => handleOpenDelete(link)}
                           >
                             🗑️ Delete link
                           </button>
@@ -590,7 +521,6 @@ export default function LinksPage() {
 
                 {Array.from({ length: totalPages }, (_, i) => i + 1)
                   .filter((p) => {
-                    // Show near current page or boundaries
                     return (
                       p === 1 ||
                       p === totalPages ||
@@ -625,103 +555,17 @@ export default function LinksPage() {
         )}
       </div>
 
-      {/* ── Edit Modal ── */}
-      {editingUrl && (
-        <div
-          className={styles.modalOverlay}
-          onClick={() => setEditingUrl(null)}
-        >
-          <div
-            className={styles.modalCard}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className={styles.modalTitle}>Edit Destination URL</h3>
-            <p className={styles.modalDesc}>
-              Update the destination URL for short link{" "}
-              <strong>{formatShortUrl(editingUrl.shortCode)}</strong>.
-            </p>
+      <EditUrlModal
+        isOpen={Boolean(editingUrl)}
+        url={editingUrl}
+        onClose={() => setEditingUrl(null)}
+      />
 
-            <form onSubmit={handleSaveEdit}>
-              <div className={styles.modalField}>
-                <label htmlFor="editDestinationInput" className={styles.modalLabel}>
-                  Destination URL
-                </label>
-                <input
-                  id="editDestinationInput"
-                  type="url"
-                  className={styles.modalInput}
-                  value={editDestination}
-                  onChange={(e) => {
-                    setEditDestination(e.target.value);
-                    if (editError) setEditError(null);
-                  }}
-                  autoFocus
-                  disabled={updateMutation.isPending}
-                />
-                {editError && (
-                  <p className={styles.modalError}>{editError}</p>
-                )}
-              </div>
-
-              <div className={styles.modalActions}>
-                <button
-                  type="button"
-                  className={styles.modalCancel}
-                  onClick={() => setEditingUrl(null)}
-                  disabled={updateMutation.isPending}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className={styles.modalConfirm}
-                  disabled={updateMutation.isPending}
-                >
-                  {updateMutation.isPending ? "Saving…" : "Save changes"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ── Delete Confirmation Modal ── */}
-      {deletingUrl && (
-        <div
-          className={styles.modalOverlay}
-          onClick={() => setDeletingUrl(null)}
-        >
-          <div
-            className={styles.modalCard}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className={styles.modalTitle}>Delete Short Link</h3>
-            <p className={styles.modalDesc}>
-              Are you sure you want to delete{" "}
-              <strong>{formatShortUrl(deletingUrl.shortCode)}</strong>? This will permanently remove the link and its redirect. This action cannot be undone.
-            </p>
-
-            <div className={styles.modalActions}>
-              <button
-                type="button"
-                className={styles.modalCancel}
-                onClick={() => setDeletingUrl(null)}
-                disabled={deleteMutation.isPending}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className={`${styles.modalConfirm} ${styles.modalDanger}`}
-                onClick={handleConfirmDelete}
-                disabled={deleteMutation.isPending}
-              >
-                {deleteMutation.isPending ? "Deleting…" : "Delete link"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteUrlModal
+        isOpen={Boolean(deletingUrl)}
+        url={deletingUrl}
+        onClose={() => setDeletingUrl(null)}
+      />
     </div>
   );
 }

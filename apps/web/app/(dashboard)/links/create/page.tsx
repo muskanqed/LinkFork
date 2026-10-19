@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCreateUrl } from "@/hooks/useUrls";
+import { validateUrl } from "@/lib/utils";
 import styles from "./create.module.css";
 
 // ── Icons ────────────────────────────────────────────────────────────────────
@@ -79,23 +80,13 @@ export default function CreateLinkPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const validation = validateUrl(destination, "Destination URL is required.");
+    if (!validation.isValid) {
+      setError(validation.error || "Invalid destination URL");
+      return;
+    }
+
     const trimmed = destination.trim();
-    if (!trimmed) {
-      setError("Destination URL is required.");
-      return;
-    }
-
-    try {
-      const parsed = new URL(trimmed);
-      if (!["http:", "https:"].includes(parsed.protocol)) {
-        setError("URL must start with http:// or https://");
-        return;
-      }
-    } catch {
-      setError("Please enter a valid URL including https://");
-      return;
-    }
-
     setError(null);
 
     try {

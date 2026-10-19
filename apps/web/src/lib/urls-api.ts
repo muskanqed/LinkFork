@@ -43,6 +43,18 @@ export function formatShortUrl(shortCode: string): string {
   return `${base}/${shortCode}`;
 }
 
+export function createClicksMap(clicksData?: UrlWithClicks[]): Map<string, number> {
+  const map = new Map<string, number>();
+  if (Array.isArray(clicksData)) {
+    for (const item of clicksData) {
+      if (item.id && item._count) {
+        map.set(item.id, item._count.clicks || 0);
+      }
+    }
+  }
+  return map;
+}
+
 export const urlsApi = {
   getUrls: async (): Promise<UrlItem[]> => {
     const response = await apiRequest<ApiResponse<UrlItem[]>>("/urls", {

@@ -9,8 +9,7 @@ import { DeviceBreakdown } from "@/components/analytics/DeviceBreakdown";
 import { GeoDistribution } from "@/components/analytics/GeoDistribution";
 import { TopLinksTable } from "@/components/analytics/TopLinksTable";
 import { ANALYTICS_MOCK_DATA } from "@/data/analytics-mock";
-import { useUrls, useUrlClicks } from "@/hooks/useUrls";
-import { formatShortUrl } from "@/lib/urls-api";
+import { useUrlsWithClicks } from "@/hooks/useUrls";
 
 const ChevronDown = () => (
   <svg
@@ -57,53 +56,32 @@ export default function AnalyticsPage() {
   const [selectedCountry, setSelectedCountry] = useState("all");
   const [selectedDevice, setSelectedDevice] = useState("all");
 
-  const { data: urls } = useUrls();
-  const { data: clicksData } = useUrlClicks("all");
-
-  const clicksMap = useMemo(() => {
-    const map = new Map<string, number>();
-    if (Array.isArray(clicksData)) {
-      for (const item of clicksData) {
-        if (item.id && item._count) {
-          map.set(item.id, item._count.clicks || 0);
-        }
-      }
-    }
-    return map;
-  }, [clicksData]);
+  const { urls, totalClicks } = useUrlsWithClicks();
 
   // Dynamic link filter options from real URLs
   const linkOptions = useMemo(() => {
     const list = [{ value: "all", label: "All links" }];
-    if (urls && urls.length > 0) {
-      for (const u of urls) {
-        list.push({
-          value: u.id,
-          label: formatShortUrl(u.shortCode),
-        });
-      }
+    for (const u of urls) {
+      list.push({
+        value: u.id,
+        label: u.shortUrl,
+      });
     }
     return list;
   }, [urls]);
 
   // Real Top Links
   const realTopLinks = useMemo(() => {
-    if (!urls || urls.length === 0) {
+    if (urls.length === 0) {
       return ANALYTICS_MOCK_DATA.topLinks;
     }
 
-    const sorted = [...urls]
-      .map((u) => ({
-        ...u,
-        clicks: clicksMap.get(u.id) || 0,
-      }))
-      .sort((a, b) => b.clicks - a.clicks);
-
+    const sorted = [...urls].sort((a, b) => b.clicks - a.clicks);
     const totalClicksCount = sorted.reduce((sum, u) => sum + u.clicks, 0);
 
     return sorted.slice(0, 5).map((u, i) => ({
       rank: String(i + 1).padStart(2, "0"),
-      shortUrl: formatShortUrl(u.shortCode),
+      shortUrl: u.shortUrl,
       destination: u.originalUrl,
       clicks: u.clicks.toLocaleString(),
       percentage:
@@ -111,25 +89,19 @@ export default function AnalyticsPage() {
           ? `${((u.clicks / totalClicksCount) * 100).toFixed(1)}%`
           : "0%",
     }));
-  }, [urls, clicksMap]);
-
-  // Real total clicks
-  const totalVerifiedClicks = useMemo(() => {
-    if (!urls) return null;
-    return urls.reduce((sum, u) => sum + (clicksMap.get(u.id) || 0), 0);
-  }, [urls, clicksMap]);
+  }, [urls]);
 
   const kpis = useMemo(() => {
     return ANALYTICS_MOCK_DATA.kpis.map((kpi, idx) => {
-      if (idx === 0 && totalVerifiedClicks !== null) {
+      if (idx === 0 && totalClicks > 0) {
         return {
           ...kpi,
-          value: totalVerifiedClicks.toLocaleString(),
+          value: totalClicks.toLocaleString(),
         };
       }
       return kpi;
     });
-  }, [totalVerifiedClicks]);
+  }, [totalClicks]);
 
   return (
     <div className={styles.container}>

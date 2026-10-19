@@ -1,8 +1,11 @@
 "use client";
 
+import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   urlsApi,
+  createClicksMap,
+  formatShortUrl,
   UrlItem,
   UrlWithClicks,
   CreateUrlPayload,
@@ -14,12 +17,18 @@ export const urlKeys = {
   all: ["urls"] as const,
   lists: () => [...urlKeys.all, "list"] as const,
   list: (filters?: Record<string, unknown>) =>
-    [...urlKeys.lists(), filters] as const,
+    filters ? ([...urlKeys.lists(), filters] as const) : urlKeys.lists(),
   details: () => [...urlKeys.all, "detail"] as const,
   detail: (id: string) => [...urlKeys.details(), id] as const,
   clicks: () => [...urlKeys.all, "clicks"] as const,
-  clicksByUrl: (id: string) => [...urlKeys.clicks(), id] as const,
+  clicksByUrl: (id: string) =>
+    id === "all" ? urlKeys.clicks() : ([...urlKeys.clicks(), id] as const),
 };
+
+export interface EnrichedUrlItem extends UrlItem {
+  clicks: number;
+  shortUrl: string;
+}
 
 export function useUrls() {
   return useQuery<UrlItem[], Error>({
@@ -43,13 +52,93 @@ export function useUrl(id: string) {
 }
 
 export function useUrlClicks(urlId: string = "all") {
+  const queryClient = useQueryClient();
+
   return useQuery<UrlWithClicks[], Error>({
     queryKey: urlKeys.clicksByUrl(urlId),
     queryFn: async () => {
       return urlsApi.getClicksByUrlId(urlId);
     },
+    initialData: () => {
+      if (urlId !== "all") {
+        return queryClient.getQueryData<UrlWithClicks[]>(urlKeys.clicks());
+      }
+      return undefined;
+    },
     staleTime: 30 * 1000,
   });
+}
+
+/**
+ * Composite hook that fetches URLs and their click metrics, returning enriched URLs
+ * with clicks count and short URL pre-formatted. Used across Dashboard, Links, and Analytics.
+ */
+export function useUrlsWithClicks() {
+  const urlsQuery = useUrls();
+  const clicksQuery = useUrlClicks("all");
+
+  const clicksMap = useMemo(() => {
+    return createClicksMap(clicksQuery.data);
+  }, [clicksQuery.data]);
+
+  const urls = useMemo<EnrichedUrlItem[]>(() => {
+    if (!urlsQuery.data) return [];
+    return urlsQuery.data.map((u) => ({
+      ...u,
+      clicks: clicksMap.get(u.id) ?? 0,
+      shortUrl: formatShortUrl(u.shortCode),
+    }));
+  }, [urlsQuery.data, clicksMap]);
+
+  const totalClicks = useMemo(() => {
+    return urls.reduce((sum, u) => sum + u.clicks, 0);
+  }, [urls]);
+
+  return {
+    urls,
+    rawUrls: urlsQuery.data,
+    clicksMap,
+    totalClicks,
+    totalLinks: urls.length,
+    isLoading: urlsQuery.isLoading || clicksQuery.isLoading,
+    isError: urlsQuery.isError || clicksQuery.isError,
+    error: urlsQuery.error || clicksQuery.error,
+    refetch: async () => {
+      await Promise.all([urlsQuery.refetch(), clicksQuery.refetch()]);
+    },
+  };
+}
+
+/**
+ * Composite hook that fetches a single URL item along with its specific click count
+ * and formatted short URL for the URL detail page.
+ */
+export function useUrlDetail(id: string) {
+  const urlQuery = useUrl(id);
+  const clicksQuery = useUrlClicks(id);
+
+  const totalClicks = useMemo(() => {
+    if (!clicksQuery.data || !Array.isArray(clicksQuery.data)) return 0;
+    const match = clicksQuery.data.find((item) => item.id === id);
+    return match?._count?.clicks ?? 0;
+  }, [clicksQuery.data, id]);
+
+  const shortUrl = useMemo(() => {
+    return urlQuery.data ? formatShortUrl(urlQuery.data.shortCode) : "";
+  }, [urlQuery.data]);
+
+  return {
+    link: urlQuery.data,
+    shortUrl,
+    totalClicks,
+    isLoading: urlQuery.isLoading,
+    isClicksLoading: clicksQuery.isLoading,
+    isError: urlQuery.isError,
+    error: urlQuery.error || clicksQuery.error,
+    refetch: async () => {
+      await Promise.all([urlQuery.refetch(), clicksQuery.refetch()]);
+    },
+  };
 }
 
 export function useCreateUrl() {
@@ -82,7 +171,9 @@ export function useUpdateUrl() {
         if (!old) return [updatedUrl];
         return old.map((item) => (item.id === id ? updatedUrl : item));
       });
-      queryClient.invalidateQueries({ queryKey: urlKeys.all });
+      // Invalidate list and detail without unnecessarily invalidating clicks
+      queryClient.invalidateQueries({ queryKey: urlKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: urlKeys.detail(id) });
     },
   });
 }
@@ -98,7 +189,9 @@ export function useDeleteUrl() {
         return old.filter((item) => item.id !== deletedId);
       });
       queryClient.removeQueries({ queryKey: urlKeys.detail(deletedId) });
-      queryClient.invalidateQueries({ queryKey: urlKeys.all });
+      queryClient.removeQueries({ queryKey: urlKeys.clicksByUrl(deletedId) });
+      queryClient.invalidateQueries({ queryKey: urlKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: urlKeys.clicks() });
     },
   });
 }

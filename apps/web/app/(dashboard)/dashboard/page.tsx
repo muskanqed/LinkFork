@@ -12,29 +12,11 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useCurrentUser } from "@/hooks/useAuth";
-import { useUrls, useUrlClicks } from "@/hooks/useUrls";
-import { formatShortUrl } from "@/lib/urls-api";
+import { useUrlsWithClicks } from "@/hooks/useUrls";
+import { formatRelativeTime } from "@/lib/utils";
 import styles from "./dashboard.module.css";
 
-function formatRelativeTime(dateStr?: string): string {
-  if (!dateStr) return "";
-  try {
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const minutes = Math.floor(diff / 60000);
-    if (minutes < 1) return "Just now";
-    if (minutes < 60) return `${minutes} min ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-    const days = Math.floor(hours / 24);
-    if (days < 30) return `${days} day${days > 1 ? "s" : ""} ago`;
-    return new Date(dateStr).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    });
-  } catch {
-    return "";
-  }
-}
+
 
 // ── Custom tooltip ────────────────────────────────────────────────────────────
 
@@ -75,27 +57,7 @@ export default function DashboardPage() {
   const [period, setPeriod] = useState<Period>("30D");
 
   const { data: user } = useCurrentUser();
-  const { data: urls, isLoading: urlsLoading } = useUrls();
-  const { data: clicksData, isLoading: clicksLoading } = useUrlClicks("all");
-
-  const clicksMap = useMemo(() => {
-    const map = new Map<string, number>();
-    if (Array.isArray(clicksData)) {
-      for (const item of clicksData) {
-        if (item.id && item._count) {
-          map.set(item.id, item._count.clicks || 0);
-        }
-      }
-    }
-    return map;
-  }, [clicksData]);
-
-  // Aggregate Real Metrics
-  const totalLinks = urls?.length ?? 0;
-  const totalClicks = useMemo(() => {
-    if (!urls) return 0;
-    return urls.reduce((sum, u) => sum + (clicksMap.get(u.id) || 0), 0);
-  }, [urls, clicksMap]);
+  const { urls, totalLinks, totalClicks, isLoading } = useUrlsWithClicks();
 
   const activeLinks = totalLinks;
   const avgClicksPerLink =
@@ -103,20 +65,13 @@ export default function DashboardPage() {
 
   // Top Performing Links (Real data sorted by clicks desc)
   const topLinks = useMemo(() => {
-    if (!urls) return [];
     return [...urls]
-      .map((u) => ({
-        ...u,
-        clicks: clicksMap.get(u.id) || 0,
-        shortUrl: formatShortUrl(u.shortCode),
-      }))
       .sort((a, b) => b.clicks - a.clicks)
       .slice(0, 5);
-  }, [urls, clicksMap]);
+  }, [urls]);
 
   // Recent Activity from real URLs
   const recentActivities = useMemo(() => {
-    if (!urls || urls.length === 0) return [];
     return [...urls]
       .sort(
         (a, b) =>
@@ -125,7 +80,7 @@ export default function DashboardPage() {
       .slice(0, 5)
       .map((u) => ({
         id: u.id,
-        text: `Link created: ${formatShortUrl(u.shortCode)}`,
+        text: `Link created: ${u.shortUrl}`,
         time: formatRelativeTime(u.createdAt),
       }));
   }, [urls]);
@@ -152,8 +107,6 @@ export default function DashboardPage() {
   );
   const maxTick = Math.ceil(maxClicks / 10) * 10;
   const ticks = Array.from({ length: 5 }, (_, i) => Math.round((maxTick / 4) * i));
-
-  const isLoading = urlsLoading || clicksLoading;
 
   return (
     <div className={styles.container}>

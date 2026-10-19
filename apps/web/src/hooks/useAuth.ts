@@ -77,7 +77,7 @@ export function useLogout() {
     mutationFn: () => authApi.logout(),
     onSettled: () => {
       queryClient.setQueryData(authKeys.user, null);
-      queryClient.removeQueries({ queryKey: authKeys.all });
+      queryClient.clear();
       router.push("/login");
     },
   });
