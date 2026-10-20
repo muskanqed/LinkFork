@@ -125,9 +125,8 @@ export function LinkDetailModal({
         {/* Header */}
         <header className={styles.modalHeader}>
           <div className={styles.headerTitleGroup}>
-            <span className={styles.headerCategory}>Short Link Details</span>
             <h2 id="link-detail-modal-title" className={styles.modalTitle}>
-              {link ? link.shortCode : "Link Details"}
+              Link Details
             </h2>
           </div>
           <div className={styles.headerActions}>
@@ -203,33 +202,55 @@ export function LinkDetailModal({
               <div className={styles.heroCard}>
                 <div className={styles.heroTop}>
                   <div className={styles.shortUrlWrapper}>
-                    <span className={styles.shortUrlLabel}>Shortened Link</span>
-                    <a
-                      href={shortUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.shortUrlValue}
-                      title="Open shortened link"
-                    >
-                      {shortUrl}
-                    </a>
-                  </div>
-                  <div className={styles.heroButtons}>
-                    <button
-                      type="button"
-                      className={styles.primaryActionBtn}
-                      onClick={handleCopy}
-                    >
-                      {copied ? "✓ Copied!" : "📋 Copy Short URL"}
-                    </button>
-                    <a
-                      href={shortUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.secondaryActionBtn}
-                    >
-                      ↗ Visit Link
-                    </a>
+                    <span className={styles.shortUrlLabel}>Short URL</span>
+                    <div className={styles.shortUrlRow}>
+                      <a
+                        href={shortUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.shortUrlValue}
+                        title="Open short link in new tab"
+                      >
+                        {shortUrl}
+                      </a>
+                      <button
+                        type="button"
+                        className={styles.copyIconButton}
+                        onClick={handleCopy}
+                        title={copied ? "Copied to clipboard" : "Copy short URL"}
+                        aria-label="Copy short URL"
+                      >
+                        {copied ? (
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#16a34a"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        ) : (
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                          </svg>
+                        )}
+                      </button>
+                      {copied && <span className={styles.copiedBadge}>Copied!</span>}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -247,8 +268,8 @@ export function LinkDetailModal({
                   >
                     <span>{link.originalUrl}</span>
                     <svg
-                      width="13"
-                      height="13"
+                      width="14"
+                      height="14"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -265,7 +286,115 @@ export function LinkDetailModal({
                 </div>
               </div>
 
-              {/* Key Metrics Grid */}
+              {/* Action Buttons Row */}
+              <div className={styles.actionButtonsRow}>
+                <button
+                  type="button"
+                  className={styles.primaryActionBtn}
+                  onClick={handleCopy}
+                >
+                  {copied ? (
+                    <>
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                      </svg>
+                      Copy Short URL
+                    </>
+                  )}
+                </button>
+
+                <a
+                  href={shortUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.secondaryActionBtn}
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                  </svg>
+                  Visit Link
+                </a>
+
+                <button
+                  type="button"
+                  className={styles.secondaryActionBtn}
+                  onClick={() => setEditing(true)}
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+                  </svg>
+                  Edit Destination
+                </button>
+
+                <button
+                  type="button"
+                  className={`${styles.secondaryActionBtn} ${styles.dangerActionBtn}`}
+                  onClick={() => setDeleting(true)}
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  </svg>
+                  Delete
+                </button>
+              </div>
+
+              {/* Key Metrics Grid (3 summary cards) */}
               <div className={styles.statsGrid}>
                 <div className={styles.statCard}>
                   <span className={styles.statLabel}>Total Clicks</span>
@@ -276,7 +405,7 @@ export function LinkDetailModal({
                 </div>
                 <div className={styles.statCard}>
                   <span className={styles.statLabel}>Created Date</span>
-                  <span className={styles.statValue} style={{ fontSize: "1.1rem" }}>
+                  <span className={styles.statValue} style={{ fontSize: "1.05rem" }}>
                     {formatDate(link.createdAt)}
                   </span>
                   <span className={styles.statMeta}>Date created</span>
@@ -344,24 +473,13 @@ export function LinkDetailModal({
           )}
         </div>
 
-        {/* Footer / Actions Bar */}
+        {/* Footer / Dismiss Bar */}
         {!isLoading && !error && link && (
           <footer className={styles.modalFooter}>
             <div className={styles.footerLeft}>
-              <button
-                type="button"
-                className={styles.actionButton}
-                onClick={() => setEditing(true)}
-              >
-                ✏️ Edit Destination
-              </button>
-              <button
-                type="button"
-                className={`${styles.actionButton} ${styles.dangerButton}`}
-                onClick={() => setDeleting(true)}
-              >
-                🗑️ Delete Link
-              </button>
+              <span className={styles.footerIdLabel}>
+                Link ID: <code>{link.id}</code>
+              </span>
             </div>
             <div className={styles.footerRight}>
               <button

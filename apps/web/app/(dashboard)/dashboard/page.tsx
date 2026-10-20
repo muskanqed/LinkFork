@@ -14,9 +14,8 @@ import {
 import { useCurrentUser } from "@/hooks/useAuth";
 import { useUrlsWithClicks } from "@/hooks/useUrls";
 import { formatRelativeTime } from "@/lib/utils";
+import { LinkDetailModal } from "@/components/links/LinkDetailModal";
 import styles from "./dashboard.module.css";
-
-
 
 // ── Custom tooltip ────────────────────────────────────────────────────────────
 
@@ -55,9 +54,30 @@ const PERIODS: Period[] = ["7D", "30D", "90D", "1Y"];
 
 export default function DashboardPage() {
   const [period, setPeriod] = useState<Period>("30D");
+  const [detailUrlId, setDetailUrlId] = useState<string | null>(null);
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const { data: user } = useCurrentUser();
   const { urls, totalLinks, totalClicks, isLoading } = useUrlsWithClicks();
+
+  const handleOpenDetail = (id: string) => {
+    setDetailUrlId(id);
+    setActiveMenuId(null);
+  };
+
+  const handleCloseDetail = () => {
+    setDetailUrlId(null);
+  };
+
+  const handleCopy = (id: string, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setActiveMenuId(null);
+    setTimeout(() => {
+      setCopiedId((current) => (current === id ? null : current));
+    }, 2000);
+  };
 
   const activeLinks = totalLinks;
   const avgClicksPerLink =
@@ -370,18 +390,42 @@ export default function DashboardPage() {
                 <th className={styles.th}>Clicks</th>
                 <th className={styles.th}>Created</th>
                 <th className={styles.th}>Status</th>
+                <th className={styles.th}></th>
               </tr>
             </thead>
             <tbody>
               {topLinks.map((link) => (
-                <tr key={link.id} className={styles.tr}>
+                <tr
+                  key={link.id}
+                  className={`${styles.tr} ${styles.trClickable}`}
+                  onClick={() => handleOpenDetail(link.id)}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`View details for ${link.shortCode}`}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      handleOpenDetail(link.id);
+                    }
+                  }}
+                >
                   <td className={styles.td}>
-                    <Link
-                      href={`/links/${link.id}`}
-                      className={styles.shortUrl}
-                    >
-                      {link.shortUrl}
-                    </Link>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                      <button
+                        type="button"
+                        className={styles.shortUrlBtn}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenDetail(link.id);
+                        }}
+                        title={`View details for ${link.shortUrl}`}
+                      >
+                        {link.shortUrl}
+                      </button>
+                      {copiedId === link.id && (
+                        <span className={styles.copiedToast}>✓ Copied</span>
+                      )}
+                    </div>
                   </td>
                   <td className={styles.td}>
                     <span
@@ -410,6 +454,84 @@ export default function DashboardPage() {
                       Active
                     </span>
                   </td>
+                  <td className={`${styles.td} ${styles.actionCell}`}>
+                    <div
+                      className={styles.actionRow}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button
+                        type="button"
+                        className={styles.viewDetailsBtn}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenDetail(link.id);
+                        }}
+                      >
+                        View Details
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.dotsBtn}
+                        aria-label="More actions"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveMenuId(
+                            activeMenuId === link.id ? null : link.id
+                          );
+                        }}
+                      >
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <circle cx="12" cy="5" r="1" />
+                          <circle cx="12" cy="12" r="1" />
+                          <circle cx="12" cy="19" r="1" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    {activeMenuId === link.id && (
+                      <div
+                        className={styles.actionMenu}
+                        onClick={(e) => e.stopPropagation()}
+                        onMouseLeave={() => setActiveMenuId(null)}
+                      >
+                        <button
+                          type="button"
+                          className={styles.actionItem}
+                          onClick={() => {
+                            setActiveMenuId(null);
+                            handleOpenDetail(link.id);
+                          }}
+                        >
+                          📊 View details
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.actionItem}
+                          onClick={() => handleCopy(link.id, link.shortUrl)}
+                        >
+                          📋 Copy short URL
+                        </button>
+                        <a
+                          href={link.shortUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.actionItem}
+                          onClick={() => setActiveMenuId(null)}
+                        >
+                          ↗ Open in new tab
+                        </a>
+                      </div>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -423,6 +545,13 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Centered Reusable Link Details Modal */}
+      <LinkDetailModal
+        isOpen={Boolean(detailUrlId)}
+        urlId={detailUrlId}
+        onClose={handleCloseDetail}
+      />
     </div>
   );
 }
