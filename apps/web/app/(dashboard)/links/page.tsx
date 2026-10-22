@@ -3,13 +3,34 @@
 import React, { useState, useMemo, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useUrlsWithClicks } from "@/hooks/useUrls";
+import { usePaginatedUrlsWithClicks } from "@/hooks/useUrls";
 import { formatDate } from "@/lib/utils";
 import { UrlItem } from "@/lib/urls-api";
 import { EditUrlModal } from "@/components/links/EditUrlModal";
 import { DeleteUrlModal } from "@/components/links/DeleteUrlModal";
 import { LinkDetailModal } from "@/components/links/LinkDetailModal";
 import styles from "./links.module.css";
+
+function getPageNumbers(currentPage: number, totalPages: number): number[] {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+  const pages: number[] = [];
+  pages.push(1);
+  if (currentPage > 3) {
+    pages.push(-1); // indicator for ellipsis
+  }
+  const start = Math.max(2, currentPage - 1);
+  const end = Math.min(totalPages - 1, currentPage + 1);
+  for (let i = start; i <= end; i++) {
+    pages.push(i);
+  }
+  if (currentPage < totalPages - 2) {
+    pages.push(-1); // indicator for ellipsis
+  }
+  pages.push(totalPages);
+  return pages;
+}
 
 // ── Icons ────────────────────────────────────────────────────────────────────
 
@@ -80,16 +101,31 @@ function LinksPageContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const { urls, rawUrls, isLoading, error, refetch } = useUrlsWithClicks();
+  // Read initial pagination from URL searchParams
+  const initialPage = Math.max(
+    1,
+    parseInt(searchParams.get("page") || "1", 10) || 1
+  );
+  const limitParam = parseInt(searchParams.get("limit") || "10", 10);
+  const initialLimit = [10, 25, 50].includes(limitParam) ? limitParam : 10;
+
+  // Pagination state
+  const [page, setPage] = useState(initialPage);
+  const [pageSize, setPageSize] = useState(initialLimit);
+
+  // Server-side paginated links
+  const {
+    urls,
+    pagination,
+    isLoading,
+    error,
+    refetch,
+  } = usePaginatedUrlsWithClicks(page, pageSize);
 
   // Filters & Search
   const [search, setSearch] = useState("");
   const [filterDate, setFilterDate] = useState("all");
   const [filterSort, setFilterSort] = useState("recent");
-
-  // Pagination state
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
 
   // Active action menu
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
@@ -107,8 +143,64 @@ function LinksPageContent() {
 
   // Keep state in sync with URL searchParams (e.g. browser back/forward or direct link)
   useEffect(() => {
+    const p = Math.max(1, parseInt(searchParams.get("page") || "1", 10) || 1);
+    if (p !== page) {
+      setPage(p);
+    }
+    const l = parseInt(searchParams.get("limit") || "10", 10);
+    if ([10, 25, 50].includes(l) && l !== pageSize) {
+      setPageSize(l);
+    }
     setDetailUrlId(searchParams.get("detail"));
-  }, [searchParams]);
+  }, [searchParams, page, pageSize]);
+
+  // Gracefully recover when page exceeds totalPages (e.g. after deletion of last item on page)
+  useEffect(() => {
+    if (pagination) {
+      if (pagination.totalPages > 0 && page > pagination.totalPages) {
+        setPage(pagination.totalPages);
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("page", String(pagination.totalPages));
+        const q = params.toString();
+        router.replace(q ? `${pathname}?${q}` : pathname, { scroll: false });
+      } else if (pagination.totalPages === 0 && page !== 1) {
+        setPage(1);
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("page", "1");
+        const q = params.toString();
+        router.replace(q ? `${pathname}?${q}` : pathname, { scroll: false });
+      }
+    }
+  }, [pagination, page, searchParams, pathname, router]);
+
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      const maxPage = pagination?.totalPages
+        ? Math.max(1, pagination.totalPages)
+        : 1;
+      if (newPage < 1 || newPage > maxPage || newPage === page) return;
+      setPage(newPage);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("page", String(newPage));
+      const q = params.toString();
+      router.push(q ? `${pathname}?${q}` : pathname, { scroll: false });
+    },
+    [pagination?.totalPages, page, searchParams, pathname, router]
+  );
+
+  const handlePageSizeChange = useCallback(
+    (newSize: number) => {
+      if (![10, 25, 50].includes(newSize) || newSize === pageSize) return;
+      setPageSize(newSize);
+      setPage(1);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("limit", String(newSize));
+      params.set("page", "1");
+      const q = params.toString();
+      router.push(q ? `${pathname}?${q}` : pathname, { scroll: false });
+    },
+    [pageSize, searchParams, pathname, router]
+  );
 
   const handleOpenDetail = useCallback(
     (id: string) => {
@@ -128,8 +220,8 @@ function LinksPageContent() {
     router.push(q ? `${pathname}?${q}` : pathname, { scroll: false });
   }, [pathname, searchParams, router]);
 
-  // Filtered & Sorted items
-  const filteredLinks = useMemo(() => {
+  // Filtered & Sorted items on the current server page
+  const displayedLinks = useMemo(() => {
     let result = [...urls];
 
     // Search filter
@@ -168,7 +260,7 @@ function LinksPageContent() {
       if (filterSort === "alpha") {
         return a.originalUrl.localeCompare(b.originalUrl);
       }
-      // "recent" default
+      // "recent" default (already ordered descending by backend)
       return (
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
@@ -177,13 +269,14 @@ function LinksPageContent() {
     return result;
   }, [urls, search, filterDate, filterSort]);
 
-  // Pagination calculation
-  const totalRecords = filteredLinks.length;
-  const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
-  const currentPage = Math.min(page, totalPages);
-  const startIndex = (currentPage - 1) * pageSize;
-  const endIndex = Math.min(startIndex + pageSize, totalRecords);
-  const paginatedLinks = filteredLinks.slice(startIndex, endIndex);
+  // Pagination calculation from server metadata
+  const totalRecords = pagination?.totalItems ?? 0;
+  const totalPages = Math.max(1, pagination?.totalPages ?? 1);
+  const startIndex = totalRecords === 0 ? 0 : (page - 1) * pageSize + 1;
+  const endIndex =
+    totalRecords === 0
+      ? 0
+      : Math.min((page - 1) * pageSize + urls.length, totalRecords);
 
   // Copy handler
   const handleCopy = (id: string, text: string) => {
@@ -345,7 +438,7 @@ function LinksPageContent() {
         )}
 
         {/* Empty State (User has no links at all) */}
-        {!isLoading && !error && rawUrls && rawUrls.length === 0 && (
+        {!isLoading && !error && totalRecords === 0 && (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>🔗</div>
             <h3 className={styles.emptyTitle}>No shortened links yet</h3>
@@ -366,9 +459,8 @@ function LinksPageContent() {
         {/* Filter Empty State (Search returned 0 results) */}
         {!isLoading &&
           !error &&
-          rawUrls &&
-          rawUrls.length > 0 &&
-          filteredLinks.length === 0 && (
+          totalRecords > 0 &&
+          displayedLinks.length === 0 && (
             <div className={styles.emptyState}>
               <div className={styles.emptyIcon}>🔍</div>
               <h3 className={styles.emptyTitle}>No matching links found</h3>
@@ -391,7 +483,7 @@ function LinksPageContent() {
           )}
 
         {/* Table Content */}
-        {!isLoading && !error && paginatedLinks.length > 0 && (
+        {!isLoading && !error && displayedLinks.length > 0 && (
           <>
             <table className={styles.table}>
               <thead>
@@ -405,7 +497,7 @@ function LinksPageContent() {
                 </tr>
               </thead>
               <tbody>
-                {paginatedLinks.map((link) => (
+                {displayedLinks.map((link) => (
                   <tr
                     key={link.id}
                     className={`${styles.tr} ${styles.trClickable}`}
@@ -542,7 +634,7 @@ function LinksPageContent() {
             {/* Pagination controls */}
             <div className={styles.paginationBar}>
               <div className={styles.paginationInfo}>
-                Showing {startIndex + 1} to {endIndex} of {totalRecords} links
+                Showing {startIndex} to {endIndex} of {totalRecords} links
               </div>
 
               <div className={styles.paginationControls}>
@@ -552,14 +644,12 @@ function LinksPageContent() {
                     className={styles.rowsSelect}
                     value={pageSize}
                     onChange={(e) => {
-                      setPageSize(Number(e.target.value));
-                      setPage(1);
+                      handlePageSizeChange(Number(e.target.value));
                     }}
                     aria-label="Rows per page"
                   >
-                    <option value={5}>5</option>
                     <option value={10}>10</option>
-                    <option value={20}>20</option>
+                    <option value={25}>25</option>
                     <option value={50}>50</option>
                   </select>
                 </div>
@@ -567,39 +657,42 @@ function LinksPageContent() {
                 <button
                   type="button"
                   className={styles.pageBtn}
-                  disabled={currentPage <= 1}
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page <= 1 || isLoading}
+                  onClick={() => handlePageChange(page - 1)}
                   aria-label="Previous page"
                 >
                   ‹
                 </button>
 
-                {Array.from({ length: totalPages }, (_, i) => i + 1)
-                  .filter((p) => {
-                    return (
-                      p === 1 ||
-                      p === totalPages ||
-                      Math.abs(p - currentPage) <= 1
-                    );
-                  })
-                  .map((p) => (
+                {getPageNumbers(page, totalPages).map((p, idx) =>
+                  p === -1 ? (
+                    <span
+                      key={`ellipsis-${idx}`}
+                      className={styles.pageEllipsis}
+                    >
+                      …
+                    </span>
+                  ) : (
                     <button
                       key={p}
                       type="button"
                       className={`${styles.pageBtn} ${
-                        currentPage === p ? styles.pageBtnActive : ""
+                        page === p ? styles.pageBtnActive : ""
                       }`}
-                      onClick={() => setPage(p)}
+                      onClick={() => handlePageChange(p)}
+                      aria-label={`Page ${p}`}
+                      aria-current={page === p ? "page" : undefined}
                     >
                       {p}
                     </button>
-                  ))}
+                  )
+                )}
 
                 <button
                   type="button"
                   className={styles.pageBtn}
-                  disabled={currentPage >= totalPages}
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages || totalRecords === 0 || isLoading}
+                  onClick={() => handlePageChange(page + 1)}
                   aria-label="Next page"
                 >
                   ›

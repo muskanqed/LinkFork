@@ -29,6 +29,23 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+}
+
+export interface PaginatedUrlsData {
+  urls: UrlItem[];
+  pagination: PaginationMeta;
+}
+
+export interface GetUrlsPaginatedParams {
+  page?: number;
+  limit?: number;
+}
+
 export interface DeleteUrlResponseData {
   id: string;
   originalUrl: string;
@@ -60,6 +77,24 @@ export const urlsApi = {
     const response = await apiRequest<ApiResponse<UrlItem[]>>("/urls", {
       method: "GET",
     });
+    return response.data;
+  },
+
+  getUrlsPaginated: async (
+    params: GetUrlsPaginatedParams = {}
+  ): Promise<PaginatedUrlsData> => {
+    const page = params.page ?? 1;
+    const limit = params.limit ?? 10;
+    const query = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+    });
+    const response = await apiRequest<ApiResponse<PaginatedUrlsData>>(
+      `/urls/paginated?${query.toString()}`,
+      {
+        method: "GET",
+      }
+    );
     return response.data;
   },
 

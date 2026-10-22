@@ -15,9 +15,9 @@ const router = express.Router();
 
 router.post("/createUrl", authenticate, createUrl);
 router.get("/", authenticate, getUrls);
+router.get("/paginated", authenticate, getUrlsPagination);
 router.get("/:id", authenticate, getUrlById);
 router.put("/:id", authenticate, updateUrl);
 router.delete("/:id", authenticate, deleteUrl);
-router.get("/paginated", authenticate, getUrlsPagination);
 
 module.exports = router;

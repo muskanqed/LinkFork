@@ -1,7 +1,12 @@
 "use client";
 
 import { useMemo } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
 import {
   urlsApi,
   createClicksMap,
@@ -11,6 +16,7 @@ import {
   CreateUrlPayload,
   UpdateUrlPayload,
   DeleteUrlResponseData,
+  PaginatedUrlsData,
 } from "@/lib/urls-api";
 
 export const urlKeys = {
@@ -18,6 +24,8 @@ export const urlKeys = {
   lists: () => [...urlKeys.all, "list"] as const,
   list: (filters?: Record<string, unknown>) =>
     filters ? ([...urlKeys.lists(), filters] as const) : urlKeys.lists(),
+  paginated: (page: number, limit: number) =>
+    [...urlKeys.lists(), "paginated", { page, limit }] as const,
   details: () => [...urlKeys.all, "detail"] as const,
   detail: (id: string) => [...urlKeys.details(), id] as const,
   clicks: () => [...urlKeys.all, "clicks"] as const,
@@ -40,6 +48,17 @@ export function useUrls() {
   });
 }
 
+export function useUrlsPaginated(page: number = 1, limit: number = 10) {
+  return useQuery<PaginatedUrlsData, Error>({
+    queryKey: urlKeys.paginated(page, limit),
+    queryFn: async () => {
+      return urlsApi.getUrlsPaginated({ page, limit });
+    },
+    placeholderData: keepPreviousData,
+    staleTime: 30 * 1000,
+  });
+}
+
 export function useUrl(id: string) {
   const queryClient = useQueryClient();
 
@@ -51,7 +70,16 @@ export function useUrl(id: string) {
     initialData: () => {
       if (!id) return undefined;
       const list = queryClient.getQueryData<UrlItem[]>(urlKeys.lists());
-      return list?.find((item) => item.id === id);
+      const fromList = list?.find((item) => item.id === id);
+      if (fromList) return fromList;
+      const paginatedQueries = queryClient.getQueriesData<PaginatedUrlsData>({
+        queryKey: [...urlKeys.lists(), "paginated"],
+      });
+      for (const [, data] of paginatedQueries) {
+        const found = data?.urls?.find((item) => item.id === id);
+        if (found) return found;
+      }
+      return undefined;
     },
     enabled: Boolean(id),
     staleTime: 30 * 1000,
@@ -113,6 +141,46 @@ export function useUrlsWithClicks() {
     error: urlsQuery.error || clicksQuery.error,
     refetch: async () => {
       await Promise.all([urlsQuery.refetch(), clicksQuery.refetch()]);
+    },
+  };
+}
+
+/**
+ * Composite hook that fetches a paginated page of URLs along with click metrics,
+ * returning enriched URLs with click counts and formatted short URLs.
+ */
+export function usePaginatedUrlsWithClicks(page: number = 1, limit: number = 10) {
+  const paginatedQuery = useUrlsPaginated(page, limit);
+  const clicksQuery = useUrlClicks("all");
+
+  const clicksMap = useMemo(() => {
+    return createClicksMap(clicksQuery.data);
+  }, [clicksQuery.data]);
+
+  const urls = useMemo<EnrichedUrlItem[]>(() => {
+    if (!paginatedQuery.data?.urls) return [];
+    return paginatedQuery.data.urls.map((u) => ({
+      ...u,
+      clicks: clicksMap.get(u.id) ?? 0,
+      shortUrl: formatShortUrl(u.shortCode),
+    }));
+  }, [paginatedQuery.data?.urls, clicksMap]);
+
+  return {
+    urls,
+    rawUrls: paginatedQuery.data?.urls,
+    pagination: paginatedQuery.data?.pagination,
+    totalLinks: paginatedQuery.data?.pagination?.totalItems ?? 0,
+    totalPages: paginatedQuery.data?.pagination?.totalPages ?? 0,
+    page: paginatedQuery.data?.pagination?.page ?? page,
+    limit: paginatedQuery.data?.pagination?.limit ?? limit,
+    isLoading: paginatedQuery.isLoading || clicksQuery.isLoading,
+    isFetching: paginatedQuery.isFetching,
+    isPlaceholderData: paginatedQuery.isPlaceholderData,
+    isError: paginatedQuery.isError || clicksQuery.isError,
+    error: paginatedQuery.error || clicksQuery.error,
+    refetch: async () => {
+      await Promise.all([paginatedQuery.refetch(), clicksQuery.refetch()]);
     },
   };
 }

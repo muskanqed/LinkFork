@@ -448,6 +448,17 @@
   opacity: 0.9;
 }
 
+.pageEllipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 32px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  user-select: none;
+}
+
 /* ── Empty & Error States ────────────────────────────────────────────────── */
 .emptyState {
   padding: 3.5rem 1.5rem;
