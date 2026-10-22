@@ -1,5 +1,6 @@
 
 const urlService = require("./url.service");
+const { paginationSchema } = require("./url.validation");
 
 const createUrl = async (req, res) => {
   try {
@@ -104,10 +105,40 @@ const deleteUrl = async (req, res) => {
   }
 };
 
+const getUrlsPagination = async (req, res, next) => {
+  try {
+    const result = paginationSchema.safeParse(req.query);
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid pagination parameters",
+        errors: result.error.issues
+      });
+    }
+
+    const { page, limit } = result.data;
+
+    const data = await urlService.getUrlsPagination(
+      req.userId,
+      page,
+      limit
+    );
+
+    return res.status(200).json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createUrl,
   getUrls,
   getUrlById,
   updateUrl,
   deleteUrl,
+  getUrlsPagination
 };

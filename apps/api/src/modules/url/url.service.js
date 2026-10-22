@@ -65,6 +65,28 @@ const deleteUrl = async (id, userId) => {
   return urlRepository.deleteUrl(id);
 };
 
+const getUrlsPagination = async (userId, page, limit) => {
+  const skip = (page - 1) * limit;
+
+  const [urls, totalItems] = await Promise.all([
+    urlRepository.findByUserIdPaginated(
+      userId,
+      skip,
+      limit
+    ),
+    urlRepository.countByUserId(userId)
+  ]);
+
+  return {
+    urls,
+    pagination: {
+      page,
+      limit,
+      totalItems,
+      totalPages: Math.ceil(totalItems / limit)
+    }
+  };
+};
 
 module.exports = {
   createUrl,
@@ -72,4 +94,5 @@ module.exports = {
   getUrlById,
   updateUrl,
   deleteUrl,
+  getUrlsPagination
 };

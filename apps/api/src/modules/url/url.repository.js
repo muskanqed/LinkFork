@@ -66,10 +66,35 @@ const deleteUrl = async (id) => {
   })
 }
 
+const findByUserIdPaginated = async (userId, skip, limit) => {
+  return prisma.url.findMany({
+    where: { userId },
+    select: {
+      id: true,
+      originalUrl: true,
+      shortCode: true,
+      createdAt: true,
+      updatedAt: true
+    },
+    orderBy: {
+      createdAt: "desc"
+    },
+    skip,
+    take: limit
+  });
+};
+
+const countByUserId = async (userId) => {
+  return prisma.url.count({
+    where: { userId }
+  });
+};
 module.exports = {
   createUrl,
   findByUserId,
   findById,
   updateUrl,
   deleteUrl,
+  findByUserIdPaginated,
+  countByUserId
 }

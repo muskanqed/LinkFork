@@ -6,6 +6,7 @@ const {
   getUrlById,
   updateUrl,
   deleteUrl,
+  getUrlsPagination
 } = require("./url.controller");
 
 const authenticate = require("../middlewares/auth.middleware.js");
@@ -17,5 +18,6 @@ router.get("/", authenticate, getUrls);
 router.get("/:id", authenticate, getUrlById);
 router.put("/:id", authenticate, updateUrl);
 router.delete("/:id", authenticate, deleteUrl);
+router.get("/paginated", authenticate, getUrlsPagination);
 
 module.exports = router;
