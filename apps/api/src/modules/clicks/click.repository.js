@@ -1,9 +1,15 @@
 const prisma = require("../../config/db");
 
-const createClick = async (urlId) => {
+const createClick = async (data) => {
     return prisma.click.create({
         data: {
-            urlId
+            url: {
+                connect: { id: data.urlId }
+            },
+            country: data.country ?? null,
+            countryCode: data.countryCode ?? null,
+            region: data.region ?? null,
+            city: data.city ?? null
         }
     });
 };

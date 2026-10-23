@@ -30,9 +30,14 @@ model Url {
 }
 
 model Click {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  urlId     String   @db.ObjectId
-  createdAt DateTime @default(now())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  urlId       String   @db.ObjectId
+  createdAt   DateTime @default(now())
+
+  country     String?
+  countryCode String?
+  region      String?
+  city        String?
 
   url Url @relation(fields: [urlId], references: [id])
 }
