@@ -1,7 +1,10 @@
 const clickRepository = require("./click.repository.js");
 
 const recordClicks = async (urlId, location = {}) => {
-    return clickRepository.createClick(urlId, ...location);
+    return clickRepository.createClick({
+        urlId,
+        ...location
+    });
 };
 
 const getClicksByUrlId = async (userId) => {
